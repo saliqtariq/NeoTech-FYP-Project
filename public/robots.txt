@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /cart
+Disallow: /lms
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /enrollnow
+Disallow: /Thank-you
+Disallow: /admin
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://www.neotechsolution.com/sitemap.xml
