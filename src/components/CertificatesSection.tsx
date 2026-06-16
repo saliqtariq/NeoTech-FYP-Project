@@ -4,6 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useState } from "react";
 import { useCourses } from "@/hooks/useCourses";
 
+const getCertificateImage = (title: string) => {
+  if (!title) return null;
+  if (title.includes("Full Stack AI")) return "/FullstackaiCertificateupdated.png";
+  if (title.includes("MERN")) return "/Mern stack certificate pic.png";
+  if (title.includes("Cybersecurity")) return "/CyberSecurity & Ethical Hacking.png";
+  return null;
+};
+
 const CertificatesSection = () => {
   // Re-purposed to display Certificates for completed courses
   const { courses } = useCourses();
@@ -18,8 +26,9 @@ const CertificatesSection = () => {
   const downloadCertificate = (course: any) => {
     const win = window.open('', '_blank');
     if (!win) return;
+    const certImage = getCertificateImage(course.title);
     let html = '';
-    if (course.title && course.title.includes("Full Stack AI")) {
+    if (certImage) {
       html = `
         <html>
           <head>
@@ -30,7 +39,7 @@ const CertificatesSection = () => {
             </style>
           </head>
           <body>
-            <img src="/FullstackaiCertificateupdated.png" alt="Certificate" />
+            <img src="${certImage}" alt="Certificate" />
           </body>
         </html>
       `;
@@ -101,9 +110,9 @@ const CertificatesSection = () => {
               <DialogTitle>{activeCourse?.title} — Certificate Preview</DialogTitle>
             </DialogHeader>
             <div className="p-6 bg-gray-50">
-              {activeCourse?.title?.includes("Full Stack AI") ? (
+              {getCertificateImage(activeCourse?.title) ? (
                 <div className="mx-auto flex flex-col items-center justify-center">
-                  <img src="/FullstackaiCertificateupdated.png" alt="Full Stack AI Certificate" className="w-[820px] h-auto object-contain rounded-lg shadow-sm" />
+                  <img src={getCertificateImage(activeCourse?.title)!} alt={`${activeCourse?.title} Certificate`} className="w-[820px] h-auto object-contain rounded-lg shadow-sm" />
                 </div>
               ) : (
                 <div className="mx-auto w-[820px] h-[540px] bg-white border-8 border-sky-300 rounded-lg flex flex-col items-center justify-center">
