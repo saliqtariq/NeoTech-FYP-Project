@@ -59,6 +59,7 @@ import DevToolsBlocker from "./components/DevToolsBlocker";
 import EnrollGuard from "./guards/EnrollGuard";
 import ThankYou from "./pages/ThankYou";
 import DemoThankYou from "./pages/DemoThankYou";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import BlogPage from "./pages/Blog";
 import BlogPostPage from "./pages/BlogDetails";
 import SocialSidebar from "./components/ui/SocialSidebar";
@@ -239,6 +240,7 @@ const App = () => (
                 <Route path="/SocialMediaMarketing" element={<SocialMediaMarketingServicesPage />} />
                 <Route path="/Thank-you" element={<ThankYou />} />
                 <Route path="/demo-success" element={<DemoThankYou />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/payment-failed" element={<ThankYou />} />
                 <Route path="/pay-installment/:id" element={<PayInstallment />} />
 

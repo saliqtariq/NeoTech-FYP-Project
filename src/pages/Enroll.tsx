@@ -292,40 +292,46 @@ const Enroll = () => {
       }
       amount = parseFloat(amount.toFixed(2));
 
-      // Mock wait and redirect
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Determine currency based on location
+      let currencyCode = 'usd';
+      if (isPakistan) currencyCode = 'pkr';
+      else if (isUAE) currencyCode = 'aed';
 
-      const data = {
-        success: true,
-        params: { status: "mocked" },
-        formAction: "/demo-success"
-      };
+      // Submit to Sanity CRM first so it shows up in Dashboard
+      await writeClient.create({
+        _type: 'enrollment',
+        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        email: formData.email,
+        phone: `${countryCode} ${formData.phone}`,
+        course: selectedCourse,
+        paymentFrequency: paymentFrequency,
+        status: 'Pending Payment'
+      });
 
-      if (data.success && data.params) {
-        // Perform Redirection via Form Submission
-        // NOTE: Cart is NOT cleared here — it clears only on the ThankYou page.
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = data.formAction;
-
-        Object.keys(data.params).forEach((key) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = data.params[key];
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-
+      // Call our new Node.js backend to create a Stripe checkout session
+      const response = await fetch('http://localhost:5000/api/payments/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          courseName: selectedCourse, 
+          price: amount,
+          courseId: courseObj?._id || 'unknown',
+          currency: currencyCode
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.url) {
         toast({
           title: "Redirecting...",
-          description: "Please wait while we redirect you to the secure payment gateway.",
+          description: "Please wait while we redirect you to Stripe securely.",
         });
+        window.location.href = data.url; 
       } else {
-        throw new Error("Invalid response from payment gateway");
+        throw new Error(data.message || "Failed to create Stripe payment session");
       }
+
 
     } catch (error: any) {
       console.error("Payment Error:", error);
