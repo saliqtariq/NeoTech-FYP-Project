@@ -10,9 +10,10 @@ import { Phone, Clock, Mail, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShoppingCart } from "lucide-react";
-import staticCourses from "@/data/courses.json";
+import { useCourses } from "@/hooks/useCourses";
+import { writeClient } from "@/lib/sanity";
 
 interface Course {
   _id: string;
@@ -27,6 +28,7 @@ interface Course {
 
 const EnrollPakistan = () => {
   const { toast } = useToast();
+  const { courses: fetchedCourses } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -41,26 +43,23 @@ const EnrollPakistan = () => {
   const navigate = useNavigate();
   const { addToCart, updatePaymentPlan, locationLoading, formatPrice, isPakistan, isUAE } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countryCode, setCountryCode] = useState("+92");
+  const [phoneError, setPhoneError] = useState("");
 
-  // Fetch courses statically
+  // Sync courses from useCourses hook (Sanity + static)
   useEffect(() => {
-    const fetchCourses = () => {
-      try {
-        let data: Course[] = [...staticCourses] as any[];
-        // Inject Ramadan Reset if not present
-        if (!data.some(c => c.title.toLowerCase().includes("ramadan"))) {
-          data.push({
-            _id: "ramadan-reset-temp",
-            title: "Ramadan Reset"
-          });
-        }
-        setCourses(data);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
+    if (fetchedCourses && fetchedCourses.length > 0) {
+      let data = [...fetchedCourses] as any[];
+      // Inject Ramadan Reset if not present
+      if (!data.some(c => c.title.toLowerCase().includes("ramadan"))) {
+        data.push({
+          _id: "ramadan-reset-temp",
+          title: "Ramadan Reset"
+        });
       }
-    };
-    fetchCourses();
-  }, []);
+      setCourses(data);
+    }
+  }, [fetchedCourses]);
 
   const getPricingDetails = (selectedCourseTitle?: string) => {
     const courseObj = courses.find(c => c.title === selectedCourseTitle);
@@ -139,6 +138,15 @@ const EnrollPakistan = () => {
       });
       return;
     }
+
+    // Phone validation (digits only, length 7-15)
+    const phoneRegex = /^[0-9]{7,15}$/;
+    const rawPhone = formData.phone.replace(/[\s-]/g, '');
+    if (!phoneRegex.test(rawPhone)) {
+      setPhoneError("Please enter a valid phone number (digits only, 7-15 characters)");
+      return;
+    }
+    setPhoneError("");
 
     setIsSubmitting(true);
 
@@ -226,8 +234,16 @@ const EnrollPakistan = () => {
     setIsSubmitting(true);
 
     try {
-      // Mock tracking request
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Submit to Sanity database
+      await writeClient.create({
+        _type: 'enrollment',
+        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        email: formData.email,
+        phone: `${countryCode} ${formData.phone}`,
+        course: formData.course,
+        paymentFrequency: paymentFrequency,
+        status: 'Pending'
+      });
       const response = { ok: true };
 
       if (response.ok) {
@@ -357,13 +373,37 @@ const EnrollPakistan = () => {
                   onChange={handleChange}
                   required
                 />
-                <Input
-                  name="phone"
-                  placeholder="WhatsApp Number"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="space-y-1.5">
+                  <label className="text-gray-700 font-medium block mb-2">WhatsApp Number</label>
+                  <div className="flex gap-2">
+                    <Select value={countryCode} onValueChange={setCountryCode}>
+                      <SelectTrigger className="w-[110px] bg-white border-gray-300 rounded-xl h-12 md:text-base font-medium focus:ring-primary">
+                        <SelectValue placeholder="Code" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                        <SelectItem value="+92">🇵🇰 +92</SelectItem>
+                        <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                        <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                        <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                        <SelectItem value="+61">🇦🇺 +61</SelectItem>
+                        <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                        <SelectItem value="+966">🇸🇦 +966</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      name="phone"
+                      placeholder="300 1234567"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        handleChange(e);
+                        if (phoneError) setPhoneError("");
+                      }}
+                      required
+                      className={`flex-1 border-gray-300 rounded-xl h-12 md:text-base font-medium focus:bg-white transition-colors ${phoneError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-primary'}`}
+                    />
+                  </div>
+                  {phoneError && <p className="text-xs text-red-500 font-medium pl-1 mt-1">{phoneError}</p>}
+                </div>
                 <Textarea
                   name="message"
                   rows={4}

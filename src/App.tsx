@@ -40,6 +40,7 @@ import SocialMediaMarketingServicesPage from "./components/SocialMediaMarketingS
 import Enroll from "./pages/Enroll";
 import Cart from "./pages/Cart";
 import Dashboard from "./pages/Dashboard";
+import AdminStudio from "./pages/AdminStudio";
 
 import {
   SignIn,
@@ -62,7 +63,7 @@ import BlogPage from "./pages/Blog";
 import BlogPostPage from "./pages/BlogDetails";
 import SocialSidebar from "./components/ui/SocialSidebar";
 import WhyNeotechSolution from "./pages/WhyNeotechSolution";
-import RamadanReset from "./pages/RamadanReset";
+
 import Sitemap from "./pages/Sitemap";
 import Portfolio from "./pages/Portfolio";
 import SpokenEnglishPage from "@/components/SpokenEnglishPage";
@@ -199,6 +200,7 @@ const App = () => (
               )}
 
               {/* Standard Routes with Layout */}
+              <Route path="/admin/*" element={<AdminStudio />} />
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
@@ -207,7 +209,7 @@ const App = () => (
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/FreeDemo" element={<FreeDemoPage />} />
-                <Route path="/ramadan-reset" element={<RamadanReset />} />
+
                 <Route path="why-neotech-solutions" element={<WhyNeotechSolution />} />
                 <Route path="/blogs" element={<BlogPage />} />
                 <Route path="/blogs/:slug" element={<BlogPostPage />} />

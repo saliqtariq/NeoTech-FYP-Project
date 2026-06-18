@@ -48,14 +48,6 @@
 		"slug": "ui-ux-design"
 	},
 	{
-		"_id": "c7",
-		"title": "Ramadan Reset",
-		"description": "A compact learning reset program tailored for Ramadan schedules.",
-		"duration": "1 Month",
-		"thumbnail": "https://images.unsplash.com/photo-1520975913008-5f4a7f1a6b1a?auto=format&fit=crop&w=800&q=80",
-		"slug": "ramadan-reset"
-	},
-	{
 		"_id": "c8",
 		"title": "Spoken English Mastery",
 		"description": "Improve your spoken English for professional communication and interviews.",

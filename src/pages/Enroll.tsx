@@ -18,7 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
 
-import staticCourses from "@/data/courses.json";
+import { useCourses } from "@/hooks/useCourses";
+import { writeClient } from "@/lib/sanity";
 
 // Detailed Course interface, matching the structure from Courses.jsx for consistent schema generation
 interface Course {
@@ -44,6 +45,7 @@ interface Course {
 const Enroll = () => {
   const { toast } = useToast();
   const { addToCart, updatePaymentPlan, locationLoading, formatPrice, isPakistan, isUAE, currency, exchangeRate } = useCart();
+  const { courses: fetchedCourses } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [formData, setFormData] = useState({
@@ -56,9 +58,15 @@ const Enroll = () => {
   });
   const [paymentFrequency, setPaymentFrequency] = useState<'monthly' | 'full'>('monthly');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countryCode, setCountryCode] = useState("+92");
+  const [phoneError, setPhoneError] = useState("");
 
-
-
+  // Sync courses from useCourses hook (which fetches from Sanity + static)
+  useEffect(() => {
+    if (fetchedCourses && fetchedCourses.length > 0) {
+      setCourses(fetchedCourses);
+    }
+  }, [fetchedCourses]);
 
   const getCourseImage = (imageOrName: string) => {
     if (!imageOrName) return "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80?height=320&width=500&text=Course+Image";
@@ -86,7 +94,6 @@ const Enroll = () => {
     if (nameLower.includes("ai") || nameLower.includes("ml")) return "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80";
     if (nameLower.includes("data") || nameLower.includes("analyst")) return "https://images.unsplash.com/photo-1551288049-bbbda536ad37?auto=format&fit=crop&w=800&q=80";
     if (nameLower.includes("ethical") || nameLower.includes("cyber") || nameLower.includes("hacker")) return "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80";
-    if (nameLower.includes("ramadan") || nameLower.includes("reset")) return "/Banner-Ramadan.jpeg";
 
     // 5. Fallback for international users or missing data
     if (!isPakistan) {
@@ -97,38 +104,6 @@ const Enroll = () => {
   };
 
 
-  // Fetch courses from static data
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        let coursesData: Course[] = [...staticCourses] as any[];
-
-        // Inject Ramadan Reset if not present in API results AND user is in Pakistan/Qatar
-        const isPakOrQatar = isPakistan;
-        if (isPakOrQatar && !coursesData.some(c => c.title.toLowerCase().includes("ramadan"))) {
-          coursesData.push({
-            _id: "ramadan-reset-temp",
-            title: "Ramadan Reset",
-            description: "A 30-day journey back to yourself.",
-            duration: "1 Month",
-            students: "Limited",
-            rating: "5.0",
-            level: "All Levels",
-            modules: 4,
-            projects: 4,
-            image: "/Banner-Ramadan.jpeg",
-            slug: "ramadan-reset",
-            skills: ["Heart", "Soul", "Ethics"]
-          });
-        }
-
-        setCourses(coursesData);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-    fetchCourses();
-  }, [isPakistan]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -149,27 +124,6 @@ const Enroll = () => {
 
   const getPricingDetails = (selectedCourseTitle?: string) => {
     const courseObj = courses.find(c => c.title === selectedCourseTitle);
-
-    if (selectedCourseTitle?.toLowerCase().includes("ramadan") || courseObj?.isRamadan) {
-      const pkrPrice = courseObj?.pricePKR || 10;
-      const usdPrice = courseObj?.priceUSD || 25;
-      const displayStr = formatPrice(usdPrice, pkrPrice);
-
-      return {
-        name: "Ramadan Special",
-        price: displayStr,
-        total: `${displayStr} total`,
-        duration: "30 Days",
-        monthlyInstallment: `${displayStr} (One-time)`,
-        features: [
-          "Full 30-Day Journey",
-          "Live Sessions Access",
-          "Private Soul Journal",
-          "Digital Ethics Workshop",
-          "Lifetime Community Access"
-        ]
-      };
-    }
 
     const parseDuration = (d?: string) => {
       if (!d) return 3;
@@ -212,8 +166,16 @@ const Enroll = () => {
     setIsSubmitting(true);
 
     try {
-      // Mocking submission
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Submit to Sanity database
+      await writeClient.create({
+        _type: 'enrollment',
+        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        email: formData.email,
+        phone: `${countryCode} ${formData.phone}`,
+        course: selectedCourse,
+        paymentFrequency: paymentFrequency,
+        status: 'Pending'
+      });
 
       const response = { ok: true };
 
@@ -275,6 +237,15 @@ const Enroll = () => {
       });
       return;
     }
+
+    // Phone validation (digits only, length 7-15)
+    const phoneRegex = /^[0-9]{7,15}$/;
+    const rawPhone = formData.phone.replace(/[\s-]/g, '');
+    if (!phoneRegex.test(rawPhone)) {
+      setPhoneError("Please enter a valid phone number (digits only, 7-15 characters)");
+      return;
+    }
+    setPhoneError("");
 
     setIsSubmitting(true);
 
@@ -655,15 +626,35 @@ const Enroll = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Phone / WhatsApp</label>
-                    <Input
-                      name="phone"
-                      placeholder="+92 300 1234567"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      required
-                      className="bg-slate-50 border-slate-200 rounded-xl h-12 md:text-base font-medium focus:ring-blue-600 focus:bg-white transition-colors"
-                    />
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">WhatsApp Number</label>
+                    <div className="flex gap-2">
+                      <Select value={countryCode} onValueChange={setCountryCode}>
+                        <SelectTrigger className="w-[110px] bg-slate-50 border-slate-200 rounded-xl h-12 md:text-base font-medium focus:ring-blue-600 focus:bg-white">
+                          <SelectValue placeholder="Code" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                          <SelectItem value="+92">🇵🇰 +92</SelectItem>
+                          <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                          <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                          <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                          <SelectItem value="+61">🇦🇺 +61</SelectItem>
+                          <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                          <SelectItem value="+966">🇸🇦 +966</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        name="phone"
+                        placeholder="300 1234567"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          handleInputChange(e);
+                          if (phoneError) setPhoneError("");
+                        }}
+                        required
+                        className={`flex-1 bg-slate-50 border-slate-200 rounded-xl h-12 md:text-base font-medium focus:bg-white transition-colors ${phoneError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-600'}`}
+                      />
+                    </div>
+                    {phoneError && <p className="text-xs text-red-500 font-medium pl-1 mt-1">{phoneError}</p>}
                   </div>
 
                   <div className="space-y-1.5">

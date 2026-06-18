@@ -2,31 +2,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { useCourses } from "@/hooks/useCourses";
-
-const getCertificateImage = (title: string) => {
-  if (!title) return null;
-  if (title.includes("Full Stack AI")) return "/FullstackaiCertificateupdated.png";
-  if (title.includes("MERN")) return "/Mern stack certificate pic.png";
-  if (title.includes("Cybersecurity")) return "/CyberSecurity & Ethical Hacking.png";
-  return null;
-};
+import { useCertificates } from "@/hooks/useCertificates";
 
 const CertificatesSection = () => {
-  // Re-purposed to display Certificates for completed courses
-  const { courses } = useCourses();
+  const { certificates } = useCertificates();
   const [open, setOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<any>(null);
 
-  const handleView = (course: any) => {
-    setActiveCourse(course);
+  const handleView = (certificate: any) => {
+    setActiveCourse(certificate);
     setOpen(true);
   };
 
-  const downloadCertificate = (course: any) => {
+  const downloadCertificate = (certificate: any) => {
     const win = window.open('', '_blank');
     if (!win) return;
-    const certImage = getCertificateImage(course.title);
+    const certImage = certificate.certificateImage;
     let html = '';
     if (certImage) {
       html = `
@@ -47,7 +38,7 @@ const CertificatesSection = () => {
       html = `
         <html>
           <head>
-            <title>Certificate - ${course.title}</title>
+            <title>Certificate - ${certificate.courseName}</title>
             <style>
               body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f3f6ff}
               .cert{width:900px;height:600px;border:16px solid #0ea5e9;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:white;font-family:Arial}
@@ -65,7 +56,7 @@ const CertificatesSection = () => {
               <div class="subtitle">This certificate is proudly presented to</div>
               <div class="name">[Student Name]</div>
               <div class="subtitle">for successfully completing the course</div>
-              <div class="name">${course.title}</div>
+              <div class="name">${certificate.courseName}</div>
               <div class="meta">Date: ${new Date().toLocaleDateString()}</div>
             </div>
           </body>
@@ -88,16 +79,16 @@ const CertificatesSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course: any) => (
-            <Card key={course.id} className="rounded-2xl border p-0 overflow-hidden">
+          {certificates.map((certificate: any) => (
+            <Card key={certificate.id} className="rounded-2xl border p-0 overflow-hidden">
               <CardHeader className="p-6">
-                <CardTitle className="text-lg font-bold">{course.title}</CardTitle>
+                <CardTitle className="text-lg font-bold">{certificate.courseName}</CardTitle>
               </CardHeader>
               <CardContent className="p-6 flex flex-col gap-4">
-                <p className="text-sm text-slate-500 line-clamp-3">{course.description || course.title}</p>
+                <p className="text-sm text-slate-500 line-clamp-3">{certificate.courseInfo}</p>
                 <div className="flex gap-3 mt-auto">
-                  <Button onClick={() => handleView(course)} className="rounded-xl">Preview</Button>
-                  <Button onClick={() => downloadCertificate(course)} className="rounded-xl" variant="secondary">Download</Button>
+                  <Button onClick={() => handleView(certificate)} className="rounded-xl">Preview</Button>
+                  <Button onClick={() => downloadCertificate(certificate)} className="rounded-xl" variant="secondary">Download</Button>
                 </div>
               </CardContent>
             </Card>
@@ -107,12 +98,12 @@ const CertificatesSection = () => {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-3xl p-0 overflow-hidden">
             <DialogHeader className="p-6">
-              <DialogTitle>{activeCourse?.title} — Certificate Preview</DialogTitle>
+              <DialogTitle>{activeCourse?.courseName} — Certificate Preview</DialogTitle>
             </DialogHeader>
             <div className="p-6 bg-gray-50">
-              {getCertificateImage(activeCourse?.title) ? (
+              {activeCourse?.certificateImage ? (
                 <div className="mx-auto flex flex-col items-center justify-center">
-                  <img src={getCertificateImage(activeCourse?.title)!} alt={`${activeCourse?.title} Certificate`} className="w-[820px] h-auto object-contain rounded-lg shadow-sm" />
+                  <img src={activeCourse.certificateImage} alt={`${activeCourse?.courseName} Certificate`} className="w-[820px] h-auto object-contain rounded-lg shadow-sm" />
                 </div>
               ) : (
                 <div className="mx-auto w-[820px] h-[540px] bg-white border-8 border-sky-300 rounded-lg flex flex-col items-center justify-center">
@@ -121,7 +112,7 @@ const CertificatesSection = () => {
                   <div className="mt-6 text-sm text-slate-600">Awarded to</div>
                   <div className="mt-2 text-2xl font-bold">[Student Name]</div>
                   <div className="mt-6 text-base">For successfully completing the course</div>
-                  <div className="mt-2 text-xl font-semibold">{activeCourse?.title}</div>
+                  <div className="mt-2 text-xl font-semibold">{activeCourse?.courseName}</div>
                   <div className="mt-6 text-sm text-slate-500">Date: {new Date().toLocaleDateString()}</div>
                 </div>
               )}

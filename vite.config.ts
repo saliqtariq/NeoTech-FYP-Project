@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
   ].filter(Boolean),
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('development')
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

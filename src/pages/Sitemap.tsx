@@ -54,7 +54,6 @@ const SitemapPage = () => {
                 { label: "Cybersecurity & Ethical Hacking", to: "/cybersecurity-ethical-hacking" },
                 { label: "UI/UX Design", to: "/ui-ux-design" },
                 { label: "DevOps Engineering", to: "/devops-engineering" },
-                { label: "Ramadan Reset", to: "/ramadan-reset" },
             ],
         },
         {
