@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import TopNavbar from "./TopNavbar";
-import SocialSidebar from "./ui/SocialSidebar";
 import WhatsAppButton from "./WhatsAppButton";
 import Chatbot from "@/pages/Chatbot";
 
@@ -12,7 +11,6 @@ const Layout: React.FC = () => {
         <>
             <TopNavbar />
             <Header />
-            <SocialSidebar />
             <main>
                 <Outlet />
             </main>

@@ -62,7 +62,6 @@ import DemoThankYou from "./pages/DemoThankYou";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import BlogPage from "./pages/Blog";
 import BlogPostPage from "./pages/BlogDetails";
-import SocialSidebar from "./components/ui/SocialSidebar";
 import WhyNeotechSolution from "./pages/WhyNeotechSolution";
 
 import Sitemap from "./pages/Sitemap";

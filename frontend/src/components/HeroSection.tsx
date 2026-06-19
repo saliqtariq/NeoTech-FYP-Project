@@ -34,15 +34,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left pt-10 lg:pt-0"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 border border-blue-200 backdrop-blur-sm mb-8 shadow-sm"
-          >
-            <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse"></span>
-            <span className="text-xs font-bold text-blue-800 tracking-widest uppercase">Next-Gen Tech Education</span>
-          </motion.div>
+
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tighter mb-6 relative">
             Master the <br className="hidden lg:block" />
@@ -141,20 +133,7 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Floating Element 2 - Cyber */}
-          <motion.div
-            animate={{ y: [15, -10, 15] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute z-10 bottom-[15%] left-[-5%] lg:left-[0%] bg-slate-900 text-white rounded-2xl p-5 shadow-2xl flex items-center gap-4"
-          >
-            <div className="bg-slate-800 p-3 rounded-xl border border-slate-700">
-              <FaShieldAlt className="text-blue-400 text-2xl" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Cyber Security</p>
-              <p className="text-xs text-slate-400 font-mono tracking-widest mt-1">SEC_LEVEL: MAX</p>
-            </div>
-          </motion.div>
+
 
           {/* Abstract Graph/Chart Graphic */}
           <div className="absolute z-0 w-full h-full flex items-center justify-center opacity-40">
