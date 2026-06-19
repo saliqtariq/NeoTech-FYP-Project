@@ -52,14 +52,14 @@ const Index = () => {
     "contactPoint": [
       {
         "@type": "ContactPoint",
-        "telephone": "+92-300-0000000",
+        "telephone": "+92-335-8746804",
         "contactType": "customer service",
         "areaServed": "PK",
         "availableLanguage": "en"
       },
       {
         "@type": "ContactPoint",
-        "telephone": "+92-300-0000001",
+        "telephone": "+92-335-8746804",
         "contactType": "customer service",
         "areaServed": "PK",
         "availableLanguage": "en"

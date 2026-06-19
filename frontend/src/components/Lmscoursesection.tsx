@@ -25,9 +25,9 @@ const LmsCourseSection = () => {
     navigate(`/course-outline/${selectedCourse.id}`)
   }
 
-  const handleBatches = () => {
+  const handleEnrollNow = () => {
     setShowDialog(false)
-    navigate(`/batches/${selectedCourse.id}`)
+    navigate(`/enrollnow?course=${encodeURIComponent(selectedCourse.slug || selectedCourse.title)}`)
   }
 
   if (loading) {
@@ -274,16 +274,16 @@ const LmsCourseSection = () => {
               </div>
             </Button>
 
-            {/* Available Batches */}
+            {/* Enrol Now */}
             <Button
-              onClick={handleBatches}
+              onClick={handleEnrollNow}
               className="w-full h-16 flex items-center justify-start gap-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-600 hover:to-blue-800 text-white shadow-md hover:shadow-xl transition-all duration-300 ease-in-out"
               size="lg"
             >
               <Calendar className="h-6 w-6" />
               <div className="text-left">
-                <div className="font-semibold text-base sm:text-lg">Available Batches</div>
-                <div className="text-xs sm:text-sm opacity-90">Check schedules & enroll</div>
+                <div className="font-semibold text-base sm:text-lg">Enrol Now</div>
+                <div className="text-xs sm:text-sm opacity-90">Start your journey today</div>
               </div>
             </Button>
           </div>

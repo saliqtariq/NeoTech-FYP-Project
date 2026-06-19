@@ -70,44 +70,10 @@ const Footer = () => {
         {/* Footer Grid - Asymmetrical Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
 
-          {/* Column 1: Brand & SECP Trust (Larger Span) */}
-          <div className="lg:col-span-4 flex flex-col space-y-6 items-center md:items-start text-center md:text-left pr-0 lg:pr-8 border-r border-gray-800/40">
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className={`h-11 w-11 ${themeConfig.isRamadanTheme ? 'bg-gradient-to-br from-yellow-400 to-blue-800' : 'bg-gradient-to-br from-blue-600 to-blue-600'} rounded-xl flex items-center justify-center shadow-xl ${themeConfig.isRamadanTheme ? 'shadow-yellow-500/20' : 'shadow-blue-600/20'} group-hover:scale-105 transition-transform`}>
-                <span className="text-white font-bold text-2xl">N</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold text-white tracking-tight leading-none uppercase">Neotech Solutions</span>
-                <span className={`text-[10px] ${themeConfig.isRamadanTheme ? 'text-yellow-500' : 'text-blue-900'} font-bold uppercase tracking-widest mt-1`}>
-                  {themeConfig.isRamadanTheme ? "🌙 Ramadan Mubarak • SECP Regd." : "Private Limited • SECP Regd."}
-                </span>
-              </div>
-            </Link>
 
-            <p className="text-sm text-gray-400 leading-relaxed">
-              <strong>Neotech Solutions Private Limited</strong> is a premier <strong>software house</strong> and <strong>IT training institute</strong> dedicated to engineering excellence and professional tech empowerment.
-            </p>
-
-            <form onSubmit={handleSubscribe} className="space-y-3 w-full max-w-xs">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Newsletter</h4>
-              <div className="flex gap-2 p-1 bg-gray-900/50 border border-gray-800 rounded-xl focus-within:border-blue-600 transition-all">
-                <Input
-                  type="email"
-                  placeholder="Email address"
-                  className="bg-transparent border-none focus-visible:ring-0 text-sm text-white"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Button size="icon" className="bg-blue-600 hover:bg-blue-600 text-white rounded-lg shrink-0">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </form>
-          </div>
 
           {/* Navigation Columns */}
-          <nav className="lg:col-span-2 flex flex-col items-center md:items-start" aria-label="Footer Links">
+          <nav className="lg:col-span-4 flex flex-col items-center md:items-start" aria-label="Footer Links">
             <h3 className="text-sm font-bold text-white mb-8 flex items-center gap-2 uppercase tracking-widest">
               <span className="w-6 h-1 bg-blue-600 rounded-full"></span>
               Explore
@@ -116,11 +82,8 @@ const Footer = () => {
               {[
                 { name: "Our Certificates", path: "/certificates" },
                 { name: "Professional Courses", path: "/courses" },
-                { name: "Insights & Blogs", path: "/blogs" },
                 { name: "Schedule a Demo", path: "/FreeDemo" },
-                { name: "Company Story", path: "/about" },
                 { name: "Contact Hub", path: "/contact" },
-                { name: "Our Portfolio", path: "/portfolio" },
               ].map((item) => (
                 <li key={item.path}>
                   <button
@@ -135,8 +98,28 @@ const Footer = () => {
             </ul>
           </nav>
 
+          <nav className="lg:col-span-4 flex flex-col items-center md:items-start" aria-label="Footer Links">
+            <h3 className="text-sm font-bold text-white mb-8 flex items-center gap-2 uppercase tracking-widest">
+              <span className="w-6 h-1 bg-blue-600 rounded-full"></span>
+              Courses
+            </h3>
+            <ul className="space-y-4">
+              {courses.filter((course: any) => isPakistan || !course.isRamadan).map((course: any) => (
+                <li key={course.url}>
+                  <button
+                    onClick={() => handleNavigate(course.url)}
+                    className="text-sm text-gray-400 hover:text-blue-900 hover:translate-x-1 transition-all flex items-center group text-left"
+                  >
+                    <ArrowRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-all text-blue-900" />
+                    {course.isRamadan ? "🌙 Ramadan Reset" : course.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
           {/* Column 3: Contact & Location */}
-          <address className="lg:col-span-3 not-italic flex flex-col items-center md:items-start">
+          <address className="lg:col-span-4 not-italic flex flex-col items-center md:items-start">
             <h3 className="text-sm font-bold text-white mb-8 flex items-center gap-2 uppercase tracking-widest">
               <span className="w-6 h-1 bg-blue-500 rounded-full"></span>
               Get In Touch
@@ -144,12 +127,12 @@ const Footer = () => {
             <div className="space-y-5 text-sm text-gray-400 w-full">
               <div className="flex items-start gap-4 group justify-center md:justify-start">
                 <MapPin className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="leading-relaxed">123 Tech Avenue, Software Park, Sector 5, Lahore, Pakistan</span>
+                <span className="leading-relaxed">Lahore, Pakistan</span>
               </div>
               <div className="flex flex-col gap-3">
-                <a href="tel:+923000000000" className="flex items-center gap-4 hover:text-blue-900 transition-colors justify-center md:justify-start">
+                <a href="tel:+923358746804" className="flex items-center gap-4 hover:text-blue-900 transition-colors justify-center md:justify-start">
                   <Phone className="h-4 w-4 text-blue-900" />
-                  <span>+92 300 0000000</span>
+                  <span>+92 335 8746804</span>
                 </a>
                 <a href="mailto:contact@neotechsolution.com" className="flex items-center gap-4 hover:text-yellow-400 transition-colors justify-center md:justify-start">
                   <Mail className="h-4 w-4 text-yellow-500" />
@@ -172,26 +155,6 @@ const Footer = () => {
               </div>
             </div>
           </address>
-
-          <nav className="lg:col-span-3 flex flex-col items-center md:items-start" aria-label="Footer Links">
-            <h3 className="text-sm font-bold text-white mb-8 flex items-center gap-2 uppercase tracking-widest">
-              <span className="w-6 h-1 bg-blue-600 rounded-full"></span>
-              Courses
-            </h3>
-            <ul className="space-y-4">
-              {courses.filter((course: any) => isPakistan || !course.isRamadan).map((course: any) => (
-                <li key={course.url}>
-                  <button
-                    onClick={() => handleNavigate(course.url)}
-                    className="text-sm text-gray-400 hover:text-blue-900 hover:translate-x-1 transition-all flex items-center group text-left"
-                  >
-                    <ArrowRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-all text-blue-900" />
-                    {course.isRamadan ? "🌙 Ramadan Reset" : course.title}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
 
         {/* Footer Bottom Bar */}

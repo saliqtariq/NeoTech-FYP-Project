@@ -714,9 +714,9 @@ const Enroll = () => {
                   <div className="pt-1">
                     <h4 className="font-bold text-slate-900 text-lg mb-1">Phone & WhatsApp</h4>
                     <p className="text-slate-600 font-medium">
-                      <a href="tel:+923000000000" className="hover:text-blue-900 transition-colors inline-block pb-1">+92 300 0000000</a>
+                      <a href="tel:+923358746804" className="hover:text-blue-900 transition-colors inline-block pb-1">+92 335 8746804</a>
                       <br />
-                      <a href="tel:+923000000001" className="hover:text-blue-900 transition-colors inline-block">+92 300 0000001</a>
+                      <a href="tel:+923358746804" className="hover:text-blue-900 transition-colors inline-block">+92 335 8746804</a>
                     </p>
                   </div>
                 </div>
@@ -761,7 +761,7 @@ const Enroll = () => {
                   Have questions about our course structures or schedules? Schedule a free consultation call.
                 </p>
                 <Button
-                  onClick={() => window.open("https://wa.link/lkcpco", "_blank")}
+                  onClick={() => window.open("https://wa.me/923358746804", "_blank")}
                   variant="outline"
                   className="w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white hover:text-slate-900 font-bold py-6 px-10 rounded-full text-lg transition-all"
                 >

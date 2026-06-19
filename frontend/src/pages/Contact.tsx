@@ -76,7 +76,7 @@ const Contact = () => {
     },
     "contactPoint": [{
       "@type": "ContactPoint",
-      "telephone": "+92-300-0000000",
+      "telephone": "+92-335-8746804",
       "contactType": "customer service"
     }]
   };
@@ -152,8 +152,8 @@ const Contact = () => {
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 mb-1">Communication</h4>
-                <p className="text-slate-600 font-medium text-sm">+92 300 0000000</p>
-                <p className="text-slate-600 font-medium text-sm">+92 300 0000001</p>
+                <p className="text-slate-600 font-medium text-sm">+92 335 8746804</p>
+                <p className="text-slate-600 font-medium text-sm">+92 335 8746804</p>
               </div>
             </div>
 
@@ -174,7 +174,7 @@ const Contact = () => {
                 <h3 className="text-2xl font-extrabold mb-3 tracking-tight">Need Instant Help?</h3>
                 <p className="text-blue-100 font-medium text-sm mb-8 leading-relaxed">Our WhatsApp engineering & support team is active 24/7 for urgent inquiries.</p>
                 <Button
-                  onClick={() => window.open("https://wa.link/lkcpco", "_blank")}
+                  onClick={() => window.open("https://wa.me/923358746804", "_blank")}
                   className="bg-white text-blue-700 hover:bg-slate-50 hover:text-blue-800 w-full rounded-2xl py-6 font-bold text-base shadow-lg"
                 >
                   <MessageSquare className="w-5 h-5 mr-2" /> Chat on WhatsApp

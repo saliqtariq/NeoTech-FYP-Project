@@ -58,6 +58,21 @@ const EnrollPakistan = () => {
         });
       }
       setCourses(data);
+
+      // Pre-select course from URL query parameter if available
+      const params = new URLSearchParams(window.location.search);
+      const courseParam = params.get("course");
+      if (courseParam) {
+        // Find matching course by title or slug
+        const matchedCourse = data.find(c => 
+          c.title.toLowerCase() === courseParam.toLowerCase() || 
+          c.slug?.toLowerCase() === courseParam.toLowerCase() ||
+          c._id === courseParam
+        );
+        if (matchedCourse) {
+          setFormData(prev => ({ ...prev, course: matchedCourse.title }));
+        }
+      }
     }
   }, [fetchedCourses]);
 
@@ -563,7 +578,7 @@ const EnrollPakistan = () => {
                 ))}
               </ul>
               <Button
-                onClick={() => window.open("https://wa.link/u409zt", "_blank")}
+                onClick={() => window.open("https://wa.me/923358746804", "_blank")}
                 className="w-full bg-white text-primary hover:bg-gray-100 rounded-xl py-6 text-lg font-semibold"
               >
                 Chat on WhatsApp
@@ -586,7 +601,7 @@ const EnrollPakistan = () => {
               <div className="flex items-center space-x-4">
                 <Phone className="h-6 w-6 text-primary" />
                 <p className="text-gray-700">
-                  +92 300 0000000 / +92 300 0000001
+                  +92 335 8746804 / +92 335 8746804
                 </p>
               </div>
               <div className="flex items-center space-x-4">
@@ -608,7 +623,7 @@ const EnrollPakistan = () => {
                 Talk to our experts today and find the right course for you.
               </p>
               <Button
-                onClick={() => window.open("https://wa.link/lkcpco", "_blank")}
+                onClick={() => window.open("https://wa.me/923358746804", "_blank")}
                 className="w-full bg-white text-primary hover:bg-gray-100 rounded-xl py-6 text-lg font-semibold"
               >
                 Schedule Free Call

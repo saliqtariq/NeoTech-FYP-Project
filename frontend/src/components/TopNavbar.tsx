@@ -41,7 +41,7 @@ export default function TopNavbar() {
           <div className="flex items-center gap-5 text-sm font-medium">
             <div className="hidden md:flex items-center gap-2 text-blue-100 hover:text-white transition-colors cursor-pointer">
               <Phone className="w-4 h-4 text-blue-400" />
-              <span>+92 300 0000000</span>
+              <span>+92 335 8746804</span>
             </div>
 
             <div className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors cursor-pointer">

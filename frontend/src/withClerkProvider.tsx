@@ -23,6 +23,20 @@ export const withClerkProvider = (Component: React.FC) => (props: any) => {
       publishableKey={clerkPubKey}
       signInFallbackRedirectUrl={import.meta.env.VITE_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL}
       signUpFallbackRedirectUrl={import.meta.env.VITE_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL}
+      localization={{
+        signIn: {
+          start: {
+            title: "Sign in to NeoTech Solution",
+            subtitle: "to continue to NeoTech Solution",
+          }
+        },
+        signUp: {
+          start: {
+            title: "Create your NeoTech Solution account",
+            subtitle: "to continue to NeoTech Solution",
+          }
+        }
+      }}
     >
       <Component {...props} />
     </ClerkProvider>

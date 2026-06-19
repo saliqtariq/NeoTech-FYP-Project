@@ -125,8 +125,8 @@ const Terms = () => {
                 </div>
                 <div className="space-y-2 m-0">
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest m-0">Call/WhatsApp</p>
-                  <p className="font-bold text-slate-900 m-0">+92 300 0000000</p>
-                  <p className="font-bold text-slate-900 m-0">+92 300 0000001</p>
+                  <p className="font-bold text-slate-900 m-0">+92 335 8746804</p>
+                  <p className="font-bold text-slate-900 m-0">+92 335 8746804</p>
                 </div>
               </div>
               <div className="mt-8 pt-6 border-t border-blue-200">

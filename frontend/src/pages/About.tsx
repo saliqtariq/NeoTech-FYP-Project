@@ -78,7 +78,7 @@ const About = () => {
     },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+92-300-0000000",
+      telephone: "+92-335-8746804",
       contactType: "customer service",
       email: "contact@neotechsolution.com",
     },
@@ -156,73 +156,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* Story Section */}
-      <section className="py-24 bg-white relative">
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-50 to-transparent"></div>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
 
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="lg:w-1/2"
-            >
-              <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-8 tracking-tight">
-                Our Journey Since <span className="text-blue-900">2024</span>
-              </h2>
-              <p className="text-lg text-slate-600 mb-10 leading-relaxed font-medium">
-                Founded with a vision to revolutionize the tech landscape, Neotech Solutions has quickly become a trusted vanguard for high-end software development and industry-ready IT training.
-              </p>
 
-              <div className="flex flex-col gap-6">
-                <div className="flex items-start gap-5 p-6 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                  <div className="bg-blue-100 p-3 rounded-xl text-blue-900 shrink-0">
-                    <ShieldCheck size={28} />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">
-                      Registered & Certified
-                    </h4>
-                    <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                      Operating as a legally registered Private Limited company with global compliance and standards.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-5 p-6 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                  <div className="bg-blue-100 p-3 rounded-xl text-blue-900 shrink-0">
-                    <Rocket size={28} />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">Rapid Growth</h4>
-                    <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                      Recognized as one of the fastest-growing tech forces in the region, empowering thousands.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="lg:w-1/2 relative w-full h-[500px]"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-            >
-              <div className="absolute inset-0 bg-blue-600 rounded-[3rem] translate-x-4 translate-y-4 opacity-10"></div>
-              <div className="w-full h-full bg-slate-100 rounded-[3rem] overflow-hidden shadow-2xl relative z-10 border border-slate-200/50">
-                <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80"
-                  alt="Team Work"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </motion.div>
-
-          </div>
-        </div>
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-50 to-transparent"></div>
-      </section>
 
       {/* Mission & Vision */}
       <section className="py-24 bg-slate-50 relative overflow-hidden">

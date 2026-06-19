@@ -134,3 +134,17 @@
     }
   }
 }
+
+/* Hide Clerk Watermarks and Development Banners */
+.cl-internal-b3al4t, .cl-internal-1hp5nqm, .cl-internal-1sj2hce, .cl-watermark { display: none !important; }
+.cl-footer > div:last-child { display: none !important; }
+
+
+/* Hide Clerk Facebook Option */
+button[data-provider*='facebook'], button[data-strategy*='facebook'], button:has([class*='facebook']) { display: none !important; }
+
+
+/* Override Clerk Header Text */
+.neotech-signin-wrapper .cl-headerTitle, .neotech-signup-wrapper .cl-headerTitle { font-size: 0 !important; }
+.neotech-signin-wrapper .cl-headerTitle::after { content: "Sign in to Neotech Solutions" !important; font-size: 1.5rem !important; }
+.neotech-signup-wrapper .cl-headerTitle::after { content: "Create your Neotech account" !important; font-size: 1.5rem !important; }

@@ -106,9 +106,11 @@ const App = () => (
                           path="/sign-in"
                           signUpUrl="/sign-up"
                           appearance={{
+                            layout: { logoPlacement: "none" },
                             elements: {
+                              logoBox: { display: "none" },
                               card: {
-                                boxShadow: "0 4px 32px 0 rgba(16, 185, 129, 0.15)",
+                                boxShadow: "0 4px 32px 0 rgba(37, 99, 235, 0.15)",
                                 borderRadius: "1.5rem",
                                 border: "1px solid #e5e7eb",
                                 background: "#fff",
@@ -119,14 +121,21 @@ const App = () => (
                                 fontSize: "1.5rem",
                               },
                               headerSubtitle: { color: "#64748b" },
-                              socialButtonsBlockButton: { borderRadius: "0.5rem" },
+                              socialButtons: {
+                                display: "flex",
+                                width: "100%",
+                              },
+                              socialButtonsBlockButton: { 
+                                borderRadius: "0.5rem",
+                                width: "100%",
+                                justifyContent: "center",
+                              },
                               formFieldInput: {
                                 borderRadius: "0.5rem",
-                                borderColor: "#d1fae5",
+                                borderColor: "#bfdbfe",
                               },
                               formButtonPrimary: {
-                                background:
-                                  "linear-gradient(to right,#2563eb,#60a5fa)",
+                                background: "linear-gradient(to right,#2563eb,#60a5fa)",
                                 borderRadius: "0.5rem",
                               },
                               footerAction: { color: "#2563eb" },
@@ -135,7 +144,7 @@ const App = () => (
                               colorPrimary: "#2563eb",
                               colorText: "#0f172a",
                               colorBackground: "#fff",
-                              colorInputBackground: "#f0fdf4",
+                              colorInputBackground: "#eff6ff",
                               colorInputText: "#0f172a",
                             },
                           }}
@@ -160,9 +169,11 @@ const App = () => (
                           path="/sign-up"
                           signInUrl="/sign-in"
                           appearance={{
+                            layout: { logoPlacement: "none" },
                             elements: {
+                              logoBox: { display: "none" },
                               card: {
-                                boxShadow: "0 4px 32px 0 rgba(16, 185, 129, 0.15)",
+                                boxShadow: "0 4px 32px 0 rgba(37, 99, 235, 0.15)",
                                 borderRadius: "1.5rem",
                                 border: "1px solid #e5e7eb",
                                 background: "#fff",
@@ -173,14 +184,21 @@ const App = () => (
                                 fontSize: "1.5rem",
                               },
                               headerSubtitle: { color: "#64748b" },
-                              socialButtonsBlockButton: { borderRadius: "0.5rem" },
+                              socialButtons: {
+                                display: "flex",
+                                width: "100%",
+                              },
+                              socialButtonsBlockButton: { 
+                                borderRadius: "0.5rem",
+                                width: "100%",
+                                justifyContent: "center",
+                              },
                               formFieldInput: {
                                 borderRadius: "0.5rem",
-                                borderColor: "#d1fae5",
+                                borderColor: "#bfdbfe",
                               },
                               formButtonPrimary: {
-                                background:
-                                  "linear-gradient(to right,#2563eb,#60a5fa)",
+                                background: "linear-gradient(to right,#2563eb,#60a5fa)",
                                 borderRadius: "0.5rem",
                               },
                               footerAction: { color: "#2563eb" },
@@ -189,7 +207,7 @@ const App = () => (
                               colorPrimary: "#2563eb",
                               colorText: "#0f172a",
                               colorBackground: "#fff",
-                              colorInputBackground: "#f0fdf4",
+                              colorInputBackground: "#eff6ff",
                               colorInputText: "#0f172a",
                             },
                           }}

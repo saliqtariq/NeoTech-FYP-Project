@@ -115,7 +115,7 @@ const CoursesSection = () => {
                   {/* Floating Price Tag */}
                   {showPrice && (
                     <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md text-slate-900 font-bold px-4 py-2 rounded-xl text-sm shadow-lg border border-white/20">
-                      {formatPrice(course)}{!isPakistan && "/Mo"}
+                      {course.pricePKR ? `Rs. ${course.pricePKR.toLocaleString()}` : "Rs. 5,997"}
                     </div>
                   )}
                 </div>
@@ -151,7 +151,7 @@ const CoursesSection = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <Button
                         className="w-full bg-slate-900 border-slate-900 text-white hover:bg-slate-800 transition-all rounded-xl shadow-sm hover:shadow-md"
-                        onClick={() => window.open("/enrollnow", "_blank")}
+                        onClick={() => window.open(`/enrollnow?course=${encodeURIComponent(course.slug || course.title)}`, "_blank")}
                       >
                         Enroll Now
                       </Button>

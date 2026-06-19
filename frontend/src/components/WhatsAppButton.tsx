@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 
 const WhatsAppButton: React.FC = () => {
-  const phoneNumber = "92315000000" // Remove the + sign for wa.me URL
+  const phoneNumber = "923358746804" // Remove the + sign for wa.me URL
   const [chatbotOpen, setChatbotOpen] = useState(false)
 
 

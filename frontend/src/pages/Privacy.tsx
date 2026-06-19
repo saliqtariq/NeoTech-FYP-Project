@@ -147,8 +147,8 @@ const Privacy = () => {
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest m-0 mb-2">Connect with Us</p>
                   <p className="font-bold text-slate-900 m-0">contact@neotechsolution.com</p>
                   <p className="font-bold text-slate-900 m-0">support@neotechsolution.com</p>
-                  <p className="font-bold text-slate-900 m-0 mt-2">+92 300 0000000</p>
-                  <p className="font-bold text-slate-900 m-0">+92 300 0000001</p>
+                  <p className="font-bold text-slate-900 m-0 mt-2">+92 335 8746804</p>
+                  <p className="font-bold text-slate-900 m-0">+92 335 8746804</p>
                 </div>
               </div>
             </div>

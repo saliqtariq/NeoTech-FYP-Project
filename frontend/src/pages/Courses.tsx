@@ -271,11 +271,10 @@ const Courses = () => {
                       {showPrice && (
                         <div className="text-left">
                           <span className="block text-sm text-gray-500">
-                            {isPakistan ? "Monthly Installment" : "Starting at"}
+                            Full Fee
                           </span>
                           <span className="text-xl font-semibold text-[#3b82f6]">
-                            {formatPrice(course)}
-                            {!isPakistan && "/Mo"}
+                            {course.pricePKR ? `Rs. ${course.pricePKR.toLocaleString()}` : "Rs. 5,997"}
                           </span>
                         </div>
                       )}
@@ -291,7 +290,7 @@ const Courses = () => {
                         </Button>
                         <Button
                           className="bg-[#3b82f6] hover:bg-blue-600 rounded-xl px-5"
-                          onClick={() => window.open("/enrollnow", "_blank")}
+                          onClick={() => window.open(`/enrollnow?course=${encodeURIComponent(course.slug || course.title)}`, "_blank")}
                         >
                           Enrol Now
                         </Button>

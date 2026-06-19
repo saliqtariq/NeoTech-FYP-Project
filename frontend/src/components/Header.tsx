@@ -313,8 +313,8 @@ const Header: React.FC = () => {
               <strong>LMS {isLmsActive ? "✓" : ""}</strong>
             </Button>
 
-            {/* Auth */}
-            {isClerkEnabled && (
+            {/* Sign In */}
+            {isClerkEnabled ? (
               <>
                 <SignedIn>
                   <UserButton afterSignOutUrl="/" />
@@ -323,13 +323,29 @@ const Header: React.FC = () => {
                 <SignedOut>
                   <Button
                     onClick={() => navigate("/sign-in")}
-                    className="text-slate-800 hover:text-blue-900 border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 font-bold rounded-xl"
+                    className={`text-white hover:opacity-90 transition-all duration-200 font-bold`}
+                    style={{
+                      background: themeConfig.isRamadanTheme
+                        ? "linear-gradient(to bottom, #1040b9, #2563eb)"
+                        : "linear-gradient(to bottom, #3b82f6, #60a5fa)",
+                    }}
                   >
-                    {t("SignIn", { defaultValue: "Sign In" })}
+                    <strong>{t("SignIn", { defaultValue: "Sign In" })}</strong>
                   </Button>
-
                 </SignedOut>
               </>
+            ) : (
+              <Button
+                onClick={() => navigate("/sign-in")}
+                className={`text-white hover:opacity-90 transition-all duration-200 font-bold`}
+                style={{
+                  background: themeConfig.isRamadanTheme
+                    ? "linear-gradient(to bottom, #1040b9, #2563eb)"
+                    : "linear-gradient(to bottom, #3b82f6, #60a5fa)",
+                }}
+              >
+                <strong>Sign In</strong>
+              </Button>
             )}
           </div>
 

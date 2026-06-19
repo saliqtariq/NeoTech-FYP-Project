@@ -13,7 +13,8 @@ export default defineConfig({
   // The base path must match the Route path where the Studio is rendered
   basePath: '/admin',
 
-  tools: [
+  tools: (prev) => [
+    ...prev.filter((tool) => tool.name !== 'schedules' && tool.name !== 'tasks'),
     {
       name: 'dashboard',
       title: 'Dashboard',

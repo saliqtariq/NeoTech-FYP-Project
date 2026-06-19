@@ -184,7 +184,7 @@ const Services = () => {
       "contactPoint": [
         {
           "@type": "ContactPoint",
-          "telephone": "+92-315-000000",
+          "telephone": "+92-335-8746804",
           "contactType": "customer service"
         }
       ]
