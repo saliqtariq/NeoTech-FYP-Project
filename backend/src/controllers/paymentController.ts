@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_your_key';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+if (!STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not defined in .env');
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2026-05-27.dahlia' as any, // Fixed TS error matching the SDK version
 });
