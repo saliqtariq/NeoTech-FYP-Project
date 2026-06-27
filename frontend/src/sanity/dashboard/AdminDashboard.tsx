@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   const topCourses = realCourses.slice(0, 4).map((c: any, i: number) => ({
     title: c.title,
     students: c.students || '100+',
-    price: c.pricePKR ? `PKR ${c.pricePKR.toLocaleString()}` : (c.priceUSD ? `$${c.priceUSD}` : 'PKR 15,000'),
+    price: c.pricePKR ? `PKR ${c.pricePKR.toLocaleString()}` : (c.priceUSD ? `$${c.priceUSD}` : 'PKR 5,997'),
     color: ['#3b82f6', '#8b5cf6', '#22c55e', '#0f172a'][i % 4]
   }))
 
@@ -376,7 +376,7 @@ export default function AdminDashboard() {
                     </div>
                     <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>
-                         {c.pricePKR ? `PKR ${c.pricePKR.toLocaleString()}` : (c.priceUSD ? `$${c.priceUSD}` : 'PKR 15,000')}
+                         {c.pricePKR ? `PKR ${c.pricePKR.toLocaleString()}` : (c.priceUSD ? `$${c.priceUSD}` : 'PKR 5,997')}
                        </div>
                        <a href={`/admin/intent/edit/id=${c._id};type=course/`} style={{ fontSize: 13, fontWeight: 600, color: blue, background: blue + '18', borderRadius: 6, padding: '4px 10px', textDecoration: 'none', cursor: 'pointer' }}>Edit</a>
                     </div>

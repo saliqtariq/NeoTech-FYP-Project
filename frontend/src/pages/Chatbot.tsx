@@ -32,52 +32,31 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+      // Simple rule-based logic for presentation
+      setTimeout(() => {
+        const lowerInput = input.toLowerCase();
+        let botReply = "Thank you for reaching out! Our agents are currently busy, but you can explore our trending courses or contact us at info@neotechsolution.com for direct assistance.";
 
-      const chatHistoryContext = updatedMessages
-        .slice(-6)
-        .map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.text}`)
-        .join("\n");
+        if (lowerInput.includes("hi") || lowerInput.includes("hello") || lowerInput.includes("hey")) {
+          botReply = "Yes, what can I help you with today?";
+        } else if (lowerInput.includes("course") || lowerInput.includes("learn") || lowerInput.includes("enroll") || lowerInput.includes("outline")) {
+          botReply = "You can visit our Courses page to find detailed outlines, durations, and enrollment options for all our programs!";
+        }
 
-      const prompt = `
-You are a friendly and professional AI Career Consultant for Neotech Solutions (https://www.neotechsolution.com).
-
-🌟 CONTEXT MANAGEMENT:
-Use this chat history to provide a continuous, helpful experience:
-${chatHistoryContext}
-
-🌟 STRICT RULES:
-- USE PLAIN TEXT ONLY. Never use asterisks (*), bold (**), hashtags (#), or symbols.
-- NO PRICING: If the user asks about fees, prices, or charges, DO NOT provide numbers. Instead, tell them to contact Neotech Solutions directly via the website or contact details for the most accurate pricing.
-- Keep responses short and optimized (max 3 sentences).
-
-🎯 BUSINESS GOALS:
-- Primary: Promote Neotech Courses (UI/UX, Data Analysis, Data Science, DevOps, Cloud Computing, Full Stack, AI/ML, Cyber Security).
-- Secondary: Mention Software House services (Web/App Dev, AI Solutions) for business queries.
-
-✅ LOGIC:
-Be polite and encouraging. Answer tech queries briefly, then suggest a relevant Neotech course.
-
-⚠️ RESTRICTION:
-If the query is unrelated to Neotech topics, say: "I can only assist with information regarding Neotech Solutions' professional courses and services."
-
-Latest User Question: ${input}
-`;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      // Final regex clean to ensure absolutely no markdown symbols appear in UI
-      const botText = response.text().replace(/[*#_~`]/g, "").trim();
-
-      setMessages((prev) => [...prev, { role: "bot", text: botText }]);
+        setMessages((prev) => [
+          ...prev, 
+          { role: "bot", text: botReply }
+        ]);
+        setLoading(false);
+        setInput("");
+      }, 1000);
+      
     } catch (err) {
-      console.error("Gemini Error:", err);
+      console.error("Chatbot Error:", err);
       setMessages((prev) => [
         ...prev,
         { role: "bot", text: "I am having trouble connecting. Please visit neotechsolution.com for direct assistance." }
       ]);
-    } finally {
       setLoading(false);
       setInput("");
     }

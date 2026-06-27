@@ -4,7 +4,7 @@
 		"title": "MERN Full Stack Development",
 		"description": "Master MongoDB, Express.js, React, and Node.js to become a complete full-stack developer.",
 		"duration": "4 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/fullstackdevelopercourse.png",
 		"slug": "mern-full-stack-development"
 	},
 	{
@@ -12,7 +12,7 @@
 		"title": "Full Stack AI (ML + DL)",
 		"description": "Comprehensive AI course covering Machine Learning and Deep Learning fundamentals and projects.",
 		"duration": "3 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1555949963-aa79dcee981d?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/fullstackdevelopercourse.png",
 		"slug": "full-stack-ai-ml-dl"
 	},
 	{
@@ -28,7 +28,7 @@
 		"title": "Data Analysis Professional",
 		"description": "Learn Python, SQL, and data visualization tools to become a data analysis professional.",
 		"duration": "3 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/dataprofessionalcourse.png",
 		"slug": "data-analyst-professional"
 	},
 	{
@@ -52,7 +52,7 @@
 		"title": "Spoken English Mastery",
 		"description": "Improve your spoken English for professional communication and interviews.",
 		"duration": "2 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/englishspokenmasteryupdatedpic.png",
 		"slug": "spoken-english-mastery"
 	}
 ]
