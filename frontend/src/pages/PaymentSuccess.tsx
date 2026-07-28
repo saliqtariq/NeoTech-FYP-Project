@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Star, Sparkles, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { writeClient } from '@/lib/sanity';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const PaymentSuccess: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,6 +21,48 @@ const PaymentSuccess: React.FC = () => {
     "Get ready to unlock your potential!",
     "The future belongs to those who learn."
   ], []);
+
+  // ✅ Auto-update payment status to Completed in both MongoDB AND Sanity when Stripe redirects back
+  useEffect(() => {
+    const raw = sessionStorage.getItem('pendingPayment');
+    if (!raw) return;
+
+    try {
+      const payment = JSON.parse(raw);
+
+      // 1. Update MongoDB payment status
+      fetch(`${API_URL}/api/payments/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: payment.studentEmail,
+          courseName: payment.courseName,
+          status: 'Completed',
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log('✅ MongoDB payment updated to Completed:', data);
+        })
+        .catch((err) => console.error('Failed to update MongoDB payment:', err));
+
+      // 2. Auto-patch Sanity enrollment to Completed (so dashboard shows approved automatically)
+      if (payment.sanityEnrollmentId) {
+        writeClient
+          .patch(payment.sanityEnrollmentId)
+          .set({ status: 'Completed' })
+          .commit()
+          .then(() => console.log('✅ Sanity enrollment auto-approved!'))
+          .catch((err: any) => console.error('Failed to auto-approve Sanity:', err));
+      }
+
+      // Clean up sessionStorage
+      sessionStorage.removeItem('pendingPayment');
+    } catch (e) {
+      console.error('Error parsing pending payment:', e);
+    }
+  }, []);
+
 
   // Visual effects (confetti, fade-in)
   useEffect(() => {
@@ -41,11 +86,11 @@ const PaymentSuccess: React.FC = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Rotate quotes slowly every 8s
+  // Rotate quotes every 8s
   useEffect(() => {
     const interval = setInterval(() => {
       setQuoteIndex((prev) => (prev + 1) % motivationalQuotes.length);
-    }, 8000); // <-- 8 seconds
+    }, 8000);
     return () => clearInterval(interval);
   }, [motivationalQuotes.length]);
 
@@ -53,7 +98,7 @@ const PaymentSuccess: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-poppins relative overflow-hidden">
-      {/* Animated background patterns */}
+      {/* Background patterns */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -75,20 +120,16 @@ const PaymentSuccess: React.FC = () => {
         />
       ))}
 
-      {/* Cursor trail effect */}
+      {/* Cursor trail */}
       <div
         className="pointer-events-none fixed w-6 h-6 bg-blue-600 rounded-full opacity-20 blur-sm transition-all duration-300 ease-out z-50"
-        style={{
-          left: mousePosition.x - 12,
-          top: mousePosition.y - 12,
-          transform: 'translate(-50%, -50%)'
-        }}
+        style={{ left: mousePosition.x - 12, top: mousePosition.y - 12, transform: 'translate(-50%, -50%)' }}
       />
 
       {/* Main content */}
       <div className={`relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
 
-        {/* Success icon with animation */}
+        {/* Success icon */}
         <div className="relative mb-10">
           <div className="absolute inset-0 bg-blue-600 rounded-full blur-2xl opacity-20 animate-pulse"></div>
           <div className="relative bg-white rounded-full p-8 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] border border-slate-100 transform transition-all duration-500 hover:scale-110">
@@ -99,7 +140,7 @@ const PaymentSuccess: React.FC = () => {
           </div>
         </div>
 
-        {/* Thank you message */}
+        {/* Message */}
         <div className="text-center max-w-2xl mx-auto space-y-6">
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight">
             Payment <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Successful!</span>
@@ -109,17 +150,15 @@ const PaymentSuccess: React.FC = () => {
             <p className="text-2xl md:text-3xl text-slate-700 font-bold">
               Your enrollment is confirmed! 🎉
             </p>
-
             <p className="text-lg text-slate-600 leading-relaxed max-w-lg mx-auto font-medium">
               Thank you for enrolling in our course. You will receive an email shortly with your login credentials and further instructions.
             </p>
-
             <div className="flex items-center justify-center gap-2 text-blue-900 font-bold tracking-wide pt-6">
               <p className="italic transition-opacity duration-500">{currentQuote}</p>
             </div>
           </div>
 
-          {/* Return home button */}
+          {/* CTA */}
           <div className="mt-12">
             <button
               onClick={() => navigate('/dashboard')}
@@ -131,7 +170,7 @@ const PaymentSuccess: React.FC = () => {
             </button>
           </div>
 
-          {/* Motivational footer */}
+          {/* Footer note */}
           <div className="mt-16 p-6 bg-white/60 backdrop-blur-md rounded-[2rem] shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-100">
             <div className="flex items-center justify-center gap-3 text-slate-600">
               <Star className="w-5 h-5 text-yellow-400" fill="currentColor" />
@@ -146,23 +185,12 @@ const PaymentSuccess: React.FC = () => {
 
       <style>{`
         @keyframes fall {
-          0% {
-            transform: translateY(-100vh) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-          }
+          0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
-
         @keyframes gradient {
-          0%, 100% {
-            background-position: left center;
-          }
-          50% {
-            background-position: right center;
-          }
+          0%, 100% { background-position: left center; }
+          50% { background-position: right center; }
         }
       `}</style>
     </div>

@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { writeClient } from '@/lib/sanity'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 /* ── colour tokens ───────────────────────────────────────── */
 const blue   = '#4F6EF7'
 const green  = '#22C55E'
@@ -170,9 +172,18 @@ export default function AdminDashboard() {
     return `${Math.floor(diff / 1440)}d ago`
   }
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (id: string, email: string, courseName: string) => {
     try {
+      // 1. Update in Sanity
       await writeClient.patch(id).set({ status: 'Completed' }).commit()
+      
+      // 2. Update in MongoDB (Enrollments & Payments)
+      await fetch(`${API_URL}/api/payments/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, courseName, status: 'Completed' })
+      });
+      
     } catch (err) {
       console.error('Failed to approve', err)
     }
@@ -489,7 +500,7 @@ export default function AdminDashboard() {
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                           {e.status !== 'Completed' && (
-                            <button onClick={() => handleApprove(e._id)} style={{ background: blue, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            <button onClick={() => handleApprove(e._id, e.email, e.course)} style={{ background: blue, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                               Approve
                             </button>
                           )}

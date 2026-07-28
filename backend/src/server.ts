@@ -14,6 +14,7 @@ app.use(cors());
 
 import authRoutes from './routes/authRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import enrollmentRoutes from './routes/enrollmentRoutes';
 
 // Stripe webhooks need raw body, so we separate it from the standard JSON body parser
 // We will add the webhook route here later before app.use(express.json())
@@ -23,6 +24,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 
 // Basic Route for testing
 app.get('/', (req: Request, res: Response) => {

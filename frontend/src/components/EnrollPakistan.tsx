@@ -6,14 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Phone, Clock, Mail, Check } from "lucide-react";
+import { Phone, Clock, Mail, Check, Loader2, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ShoppingCart } from "lucide-react";
 import { useCourses } from "@/hooks/useCourses";
 import { writeClient } from "@/lib/sanity";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 interface Course {
   _id: string;
@@ -204,25 +205,83 @@ const EnrollPakistan = () => {
       else if (isUAE) currencyCode = 'aed';
 
       // Submit to Sanity CRM first so it shows up in Dashboard
-      await writeClient.create({
+      const studentName = formData.firstName + (formData.lastName ? ' ' + formData.lastName : '');
+      const studentPhone = `${countryCode} ${formData.phone}`;
+
+      const sanityDoc = await writeClient.create({
         _type: 'enrollment',
-        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        name: studentName,
         email: formData.email,
-        phone: `${countryCode} ${formData.phone}`,
+        phone: studentPhone,
         course: selectedCourse,
         paymentFrequency: paymentFrequency,
         status: 'Pending Payment'
       });
+      const sanityEnrollmentId = sanityDoc._id;
+
+      // Submit to MongoDB enrollments
+      try {
+        const enrollRes = await fetch(`${API_URL}/api/enrollments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: studentName,
+            email: formData.email,
+            phone: studentPhone,
+            course: selectedCourse,
+            paymentFrequency: paymentFrequency,
+            status: 'Pending Payment'
+          })
+        });
+        if (!enrollRes.ok) console.error("Enrollment save returned:", enrollRes.status);
+      } catch (err) {
+        console.error('Failed to sync enrollment to MongoDB:', err);
+      }
+
+      // Submit payment record to MongoDB immediately (status: Pending Payment)
+      try {
+        const payRes = await fetch(`${API_URL}/api/payments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transactionId: `txn_${Date.now()}`,
+            studentName,
+            studentEmail: formData.email,
+            courseName: selectedCourse,
+            amount,
+            currency: currencyCode.toUpperCase(),
+            paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
+            status: 'Pending Payment'
+          })
+        });
+        if (!payRes.ok) console.error("Payment save returned:", payRes.status);
+      } catch (err) {
+        console.error('Failed to save payment to MongoDB:', err);
+      }
+
+      // Save student info in sessionStorage so PaymentSuccess can update status to Completed
+      sessionStorage.setItem('pendingPayment', JSON.stringify({
+        studentName,
+        studentEmail: formData.email,
+        courseName: selectedCourse,
+        paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
+        amount,
+        currency: currencyCode,
+        phone: studentPhone,
+        sanityEnrollmentId   // ✅ Needed to auto-approve in Sanity dashboard
+      }));
 
       // Call our new Node.js backend to create a Stripe checkout session
-      const response = await fetch('http://localhost:5000/api/payments/create-checkout-session', {
+      const response = await fetch(`${API_URL}/api/payments/create-checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           courseName: selectedCourse, 
           price: amount,
           courseId: courseObj?._id || 'unknown',
-          currency: currencyCode
+          currency: currencyCode,
+          studentName,
+          studentEmail: formData.email
         })
       });
       

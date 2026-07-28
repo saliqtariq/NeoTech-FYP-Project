@@ -21,6 +21,8 @@ import { useCart } from "@/context/CartContext";
 import { useCourses } from "@/hooks/useCourses";
 import { writeClient } from "@/lib/sanity";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Detailed Course interface, matching the structure from Courses.jsx for consistent schema generation
 interface Course {
   _id: string;
@@ -166,15 +168,32 @@ const Enroll = () => {
     setIsSubmitting(true);
 
     try {
-      // Submit to Sanity database
+      const studentName = formData.firstName + (formData.lastName ? ' ' + formData.lastName : '');
+      const studentPhone = `${countryCode} ${formData.phone}`;
+
+      // 1. Submit to Sanity database (Dashboard)
       await writeClient.create({
         _type: 'enrollment',
-        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        name: studentName,
         email: formData.email,
-        phone: `${countryCode} ${formData.phone}`,
+        phone: studentPhone,
         course: selectedCourse,
         paymentFrequency: paymentFrequency,
         status: 'Pending'
+      });
+
+      // 2. Submit to MongoDB database
+      await fetch(`${API_URL}/api/enrollments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: studentName,
+          email: formData.email,
+          phone: studentPhone,
+          course: selectedCourse,
+          paymentFrequency: paymentFrequency,
+          status: 'Pending'
+        })
       });
 
       const response = { ok: true };
@@ -297,26 +316,84 @@ const Enroll = () => {
       if (isPakistan) currencyCode = 'pkr';
       else if (isUAE) currencyCode = 'aed';
 
+      const studentName = formData.firstName + (formData.lastName ? ' ' + formData.lastName : '');
+      const studentPhone = `${countryCode} ${formData.phone}`;
+
       // Submit to Sanity CRM first so it shows up in Dashboard
-      await writeClient.create({
+      const sanityDoc = await writeClient.create({
         _type: 'enrollment',
-        name: formData.firstName + (formData.lastName ? ' ' + formData.lastName : ''),
+        name: studentName,
         email: formData.email,
-        phone: `${countryCode} ${formData.phone}`,
+        phone: studentPhone,
         course: selectedCourse,
         paymentFrequency: paymentFrequency,
         status: 'Pending Payment'
       });
+      const sanityEnrollmentId = sanityDoc._id;
 
-      // Call our new Node.js backend to create a Stripe checkout session
-      const response = await fetch('http://localhost:5000/api/payments/create-checkout-session', {
+      // Submit to MongoDB enrollments
+      try {
+        const enrollRes = await fetch(`${API_URL}/api/enrollments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: studentName,
+            email: formData.email,
+            phone: studentPhone,
+            course: selectedCourse,
+            paymentFrequency: paymentFrequency,
+            status: 'Pending Payment'
+          })
+        });
+        if (!enrollRes.ok) console.error("Enrollment save returned:", enrollRes.status);
+      } catch (err) {
+        console.error('Failed to sync enrollment to MongoDB:', err);
+      }
+
+      // Submit payment record to MongoDB immediately (status: Pending Payment)
+      try {
+        const payRes = await fetch(`${API_URL}/api/payments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transactionId: `txn_${Date.now()}`,
+            studentName,
+            studentEmail: formData.email,
+            courseName: selectedCourse,
+            amount,
+            currency: currencyCode.toUpperCase(),
+            paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
+            status: 'Pending Payment'
+          })
+        });
+        if (!payRes.ok) console.error("Payment save returned:", payRes.status);
+      } catch (err) {
+        console.error('Failed to save payment to MongoDB:', err);
+      }
+
+      // Save student info in sessionStorage so PaymentSuccess can update status to Completed
+      sessionStorage.setItem('pendingPayment', JSON.stringify({
+        studentName,
+        studentEmail: formData.email,
+        courseName: selectedCourse,
+        paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
+        amount,
+        currency: currencyCode,
+        phone: studentPhone,
+        sanityEnrollmentId   // ✅ Needed to auto-approve in Sanity dashboard
+      }));
+
+      // Create Stripe checkout session
+      const response = await fetch(`${API_URL}/api/payments/create-checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           courseName: selectedCourse, 
           price: amount,
           courseId: courseObj?._id || 'unknown',
-          currency: currencyCode
+          currency: currencyCode,
+          studentName,
+          studentEmail: formData.email
         })
       });
       
@@ -576,7 +653,7 @@ const Enroll = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleProceedToPayment} className="space-y-6">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Target Discipline</label>
                     <Select onValueChange={handleCourseChange} required>

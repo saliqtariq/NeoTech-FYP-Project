@@ -50,6 +50,7 @@ import {
   RedirectToSignIn,
   UserButton,
 } from "@clerk/clerk-react";
+import { CustomSignIn, CustomSignUp } from "./components/CustomAuthForms";
 import { isClerkEnabled } from "@/withClerkProvider";
 import { HelmetProvider } from "react-helmet-async";
 import FreeDemoPage from "./components/Freedemo";
@@ -85,137 +86,9 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <Routes>
-              {/* Auth Routes - No standard Layout */}
-              {isClerkEnabled && (
-                <>
-                  <Route
-                    path="/sign-in/*"
-                    element={
-                      <div
-                        style={{
-                          minHeight: "100vh",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "#f8fafc",
-                        }}
-                      >
-                        <SignIn
-                          routing="path"
-                          path="/sign-in"
-                          signUpUrl="/sign-up"
-                          appearance={{
-                            layout: { logoPlacement: "none" },
-                            elements: {
-                              logoBox: { display: "none" },
-                              card: {
-                                boxShadow: "0 4px 32px 0 rgba(37, 99, 235, 0.15)",
-                                borderRadius: "1.5rem",
-                                border: "1px solid #e5e7eb",
-                                background: "#fff",
-                              },
-                              headerTitle: {
-                                color: "#2563eb",
-                                fontWeight: 700,
-                                fontSize: "1.5rem",
-                              },
-                              headerSubtitle: { color: "#64748b" },
-                              socialButtons: {
-                                display: "flex",
-                                width: "100%",
-                              },
-                              socialButtonsBlockButton: { 
-                                borderRadius: "0.5rem",
-                                width: "100%",
-                                justifyContent: "center",
-                              },
-                              formFieldInput: {
-                                borderRadius: "0.5rem",
-                                borderColor: "#bfdbfe",
-                              },
-                              formButtonPrimary: {
-                                background: "linear-gradient(to right,#2563eb,#60a5fa)",
-                                borderRadius: "0.5rem",
-                              },
-                              footerAction: { color: "#2563eb" },
-                            },
-                            variables: {
-                              colorPrimary: "#2563eb",
-                              colorText: "#0f172a",
-                              colorBackground: "#fff",
-                              colorInputBackground: "#eff6ff",
-                              colorInputText: "#0f172a",
-                            },
-                          }}
-                        />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/sign-up/*"
-                    element={
-                      <div
-                        style={{
-                          minHeight: "100vh",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "#f8fafc",
-                        }}
-                      >
-                        <SignUp
-                          routing="path"
-                          path="/sign-up"
-                          signInUrl="/sign-in"
-                          appearance={{
-                            layout: { logoPlacement: "none" },
-                            elements: {
-                              logoBox: { display: "none" },
-                              card: {
-                                boxShadow: "0 4px 32px 0 rgba(37, 99, 235, 0.15)",
-                                borderRadius: "1.5rem",
-                                border: "1px solid #e5e7eb",
-                                background: "#fff",
-                              },
-                              headerTitle: {
-                                color: "#2563eb",
-                                fontWeight: 700,
-                                fontSize: "1.5rem",
-                              },
-                              headerSubtitle: { color: "#64748b" },
-                              socialButtons: {
-                                display: "flex",
-                                width: "100%",
-                              },
-                              socialButtonsBlockButton: { 
-                                borderRadius: "0.5rem",
-                                width: "100%",
-                                justifyContent: "center",
-                              },
-                              formFieldInput: {
-                                borderRadius: "0.5rem",
-                                borderColor: "#bfdbfe",
-                              },
-                              formButtonPrimary: {
-                                background: "linear-gradient(to right,#2563eb,#60a5fa)",
-                                borderRadius: "0.5rem",
-                              },
-                              footerAction: { color: "#2563eb" },
-                            },
-                            variables: {
-                              colorPrimary: "#2563eb",
-                              colorText: "#0f172a",
-                              colorBackground: "#fff",
-                              colorInputBackground: "#eff6ff",
-                              colorInputText: "#0f172a",
-                            },
-                          }}
-                        />
-                      </div>
-                    }
-                  />
-                </>
-              )}
+              {/* Auth Routes */}
+              <Route path="/sign-in/*" element={<CustomSignIn />} />
+              <Route path="/sign-up/*" element={<CustomSignUp />} />
 
               {/* Standard Routes with Layout */}
               <Route path="/admin/*" element={<AdminStudio />} />
