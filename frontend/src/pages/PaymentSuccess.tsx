@@ -166,7 +166,7 @@ const PaymentSuccess: React.FC = () => {
             >
               <Home className="w-5 h-5 relative z-10 group-hover:-translate-y-1 transition-transform" />
               <span className="relative z-10">Go to Dashboard</span>
-              <Sparkles className="w-4 h-4 relative z-10 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4" />
+              <Sparkles className="w-4 h-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4" />
             </button>
           </div>
 
