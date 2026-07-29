@@ -4,7 +4,7 @@ import {
   BookOpen, Users, GraduationCap, DollarSign, TrendingUp,
   Search, Bell, Plus, Star, Clock, ChevronDown,
   Award, CreditCard, MessageSquare, BarChart3, Settings,
-  LayoutDashboard, HelpCircle, Zap
+  LayoutDashboard, HelpCircle, Zap, Mail, Trash2, Eye
 } from 'lucide-react'
 import { writeClient } from '@/lib/sanity'
 
@@ -132,20 +132,30 @@ export default function AdminDashboard() {
 
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [siteUsers, setSiteUsers] = useState<any[]>([])
+  const [contactInquiries, setContactInquiries] = useState<any[]>([])
+  const [toasts, setToasts] = useState<{ id: number; name: string; course: string; time: string }[]>([])
+  const toastIdRef = React.useRef(0)
+
+  const showToast = (name: string, course: string) => {
+    const id = ++toastIdRef.current
+    setToasts(prev => [...prev, { id, name, course, time: new Date().toLocaleTimeString() }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000)
+  }
 
   useEffect(() => {
     ;(async () => {
       try {
-        const [courses, certs, initialEnrollments, mongoEnrollments, usersRes] = await Promise.all([
+        const [courses, certs, initialEnrollments, mongoEnrollments, usersRes, contactRes] = await Promise.all([
           sanityClient.fetch(`count(*[_type == "course"])`),
           sanityClient.fetch(`count(*[_type == "certificate"])`),
           sanityClient.fetch(`*[_type == "enrollment"] | order(_createdAt desc)`),
           fetch(`${API_URL}/api/enrollments`).then(r => r.json()).catch(() => []),
-          fetch(`${API_URL}/api/auth/users`).then(r => r.json()).catch(() => [])
+          fetch(`${API_URL}/api/auth/users`).then(r => r.json()).catch(() => []),
+          fetch(`${API_URL}/api/contact`).then(r => r.json()).catch(() => [])
         ])
         setStats({ courses, certificates: certs })
 
-        // Format and merge enrollments from both sources
+        // Format and merge enrollments from both sources (deduplicated)
         const formattedMongo = (Array.isArray(mongoEnrollments) ? mongoEnrollments : []).map((m: any) => ({
           _id: m._id,
           name: m.name || m.fullName || m.studentName || m.email?.split('@')[0],
@@ -156,14 +166,29 @@ export default function AdminDashboard() {
           _createdAt: m.createdAt || new Date().toISOString()
         }))
 
-        const combined = [...initialEnrollments, ...formattedMongo]
+        // Deduplicate: use email+course as a unique key, Sanity entries take priority
+        const seen = new Map<string, any>()
+        for (const e of initialEnrollments) {
+          const key = `${(e.email || '').toLowerCase()}_${(e.course || '').toLowerCase()}`
+          if (!seen.has(key)) seen.set(key, e)
+        }
+        for (const e of formattedMongo) {
+          const key = `${(e.email || '').toLowerCase()}_${(e.course || '').toLowerCase()}`
+          if (!seen.has(key)) seen.set(key, e)
+        }
+        const combined = Array.from(seen.values())
         setEnrollments(combined)
         setSiteUsers(usersRes.length ? usersRes : [])
+        setContactInquiries(Array.isArray(contactRes) ? contactRes : [])
       } catch (e) { console.error(e) }
     })()
 
     const sub = sanityClient.listen('*[_type == "enrollment"]').subscribe((update: any) => {
       if (update.result) {
+        const r = update.result
+        const studentName = r.name || r.fullName || r.studentName || (r.email ? r.email.split('@')[0] : 'A student')
+        const courseName = r.course || r.courseName || 'a course'
+        showToast(studentName, courseName)
         setEnrollments(prev => {
           const newArr = [update.result, ...prev.filter(e => e._id !== update.result._id)]
           return newArr.sort((a,b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime())
@@ -261,6 +286,7 @@ export default function AdminDashboard() {
           <SideLink icon={Users}            label="Students" active={activeTab === 'Students'} onClick={() => setActiveTab('Students')} />
           <SideLink icon={GraduationCap}    label="Enrollments" active={activeTab === 'Enrollments'} onClick={() => setActiveTab('Enrollments')} />
           <SideLink icon={CreditCard}       label="Payments" active={activeTab === 'Payments'} onClick={() => setActiveTab('Payments')} />
+          <SideLink icon={Mail}              label="Inquiries" active={activeTab === 'Inquiries'} onClick={() => setActiveTab('Inquiries')} />
         </div>
 
         <div style={{ padding: '16px 8px 0', borderTop: '1px solid #e2e8f0', marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -609,8 +635,164 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {activeTab === 'Inquiries' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: 0 }}>Contact Inquiries</h1>
+                  <p style={{ color: '#64748b', fontSize: 15, margin: '4px 0 0' }}>View and manage messages submitted through the contact form.</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ background: blue + '18', color: blue, fontWeight: 700, fontSize: 14, borderRadius: 12, padding: '8px 18px' }}>
+                    {contactInquiries.length} Total
+                  </div>
+                  <div style={{ background: green + '18', color: green, fontWeight: 700, fontSize: 14, borderRadius: 12, padding: '8px 18px' }}>
+                    {contactInquiries.filter(c => c.status === 'New').length} New
+                  </div>
+                </div>
+              </div>
+              <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Name</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Email</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Phone</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Message</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Date</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Status</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contactInquiries.map((c: any, i) => (
+                      <tr key={c._id || i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '16px 24px', fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{c.firstName} {c.lastName}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#475569', fontWeight: 500 }}>{c.email}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#475569' }}>{c.phone || '—'}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#475569', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.message}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#94a3b8' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <span style={{ fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 20, 
+                            background: c.status === 'New' ? blue+'18' : c.status === 'Read' ? orange+'18' : green+'18',
+                            color: c.status === 'New' ? blue : c.status === 'Read' ? orange : green 
+                          }}>
+                            {c.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 24px', textAlign: 'right', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                          {c.status === 'New' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await fetch(`${API_URL}/api/contact/${c._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Read' })
+                                  });
+                                  setContactInquiries(prev => prev.map(item => item._id === c._id ? { ...item, status: 'Read' } : item));
+                                } catch (err) { console.error('Failed to mark as read', err) }
+                              }}
+                              title="Mark as Read"
+                              style={{ background: blue+'18', color: blue, border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600 }}
+                            >
+                              <Eye size={14} /> Read
+                            </button>
+                          )}
+                          {c.status === 'Read' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await fetch(`${API_URL}/api/contact/${c._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Resolved' })
+                                  });
+                                  setContactInquiries(prev => prev.map(item => item._id === c._id ? { ...item, status: 'Resolved' } : item));
+                                } catch (err) { console.error('Failed to resolve', err) }
+                              }}
+                              style={{ background: green+'18', color: green, border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600 }}
+                            >
+                              Resolve
+                            </button>
+                          )}
+                          <button
+                            onClick={async () => {
+                              try {
+                                await fetch(`${API_URL}/api/contact/${c._id}`, { method: 'DELETE' });
+                                setContactInquiries(prev => prev.filter(item => item._id !== c._id));
+                              } catch (err) { console.error('Failed to delete', err) }
+                            }}
+                            title="Delete"
+                            style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {contactInquiries.length === 0 && (
+                      <tr><td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>No contact inquiries yet. Submissions from the contact form will appear here.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
+
+      {/* Toast Notifications */}
+      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: '16px 20px',
+              boxShadow: '0 10px 40px -10px rgba(0,0,0,0.15)',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 14,
+              minWidth: 340,
+              maxWidth: 420,
+              animation: 'toastSlideIn 0.4s ease-out'
+            }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: 12,
+              background: green + '18',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <GraduationCap size={22} color={green} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a', marginBottom: 2 }}>New Enrollment! 🎉</div>
+              <div style={{ fontSize: 13, color: '#475569', fontWeight: 500 }}>
+                <span style={{ fontWeight: 700 }}>{t.name}</span> just enrolled in <span style={{ fontWeight: 700, color: blue }}>{t.course}</span>
+              </div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4, fontWeight: 500 }}>{t.time}</div>
+            </div>
+            <button
+              onClick={() => setToasts(prev => prev.filter(toast => toast.id !== t.id))}
+              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0, fontWeight: 700 }}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes toastSlideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }

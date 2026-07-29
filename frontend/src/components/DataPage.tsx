@@ -270,14 +270,8 @@ export default function DataAnalysisPage() {
                 Ready to Start Your Data Analysis Journey?
               </h2>
               <p className="text-lg mb-8">
-                Enroll today for just{" "}
-                <span className="font-bold">
-                  {(() => {
-                    const courseObj = findCourse(coursePricingKey);
-                    return courseObj ? formatPrice(courseObj) : "...";
-                  })()}
-                </span> and unlock
-                unlimited learning opportunities.
+                Enroll today and gain hands-on experience to unlock
+                unlimited learning opportunities. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")} // ✅ Route navigation

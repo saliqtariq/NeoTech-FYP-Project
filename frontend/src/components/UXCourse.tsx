@@ -229,10 +229,7 @@ export default function UiUxDesigningPage() {
                 Start Your UI/UX Designing Career Today
               </h2>
               <p className="text-lg mb-8">
-                Enroll now for only {(() => {
-                  const courseObj = findCourse(coursePricingKey);
-                  return courseObj ? formatPrice(courseObj) : "...";
-                })()} and build a professional UI/UX design portfolio.
+                Enroll now and gain hands-on experience to build a professional UI/UX design portfolio. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")}

@@ -243,11 +243,8 @@ export default function MernStackPage() {
                 Ready to Become a MERN Stack Developer?
               </h2>
               <p className="text-lg mb-8">
-                Enroll today for only {(() => {
-                  const courseObj = findCourse(coursePricingKey);
-                  return courseObj ? formatPrice(courseObj) : "...";
-                })()} and start
-                building scalable, real-world web applications.
+                Enroll today and gain hands-on experience to start
+                building scalable, real-world web applications. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")}

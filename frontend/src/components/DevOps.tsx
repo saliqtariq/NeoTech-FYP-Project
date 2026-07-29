@@ -206,10 +206,7 @@ export default function DevOpsEngineeringPage() {
                 Start Your DevOps Engineering Career Today
               </h2>
               <p className="text-lg mb-8">
-                Enroll now for only {(() => {
-                  const courseObj = findCourse(coursePricingKey);
-                  return courseObj ? formatPrice(courseObj) : "...";
-                })()} and gain hands-on experience with real-world DevOps tools.
+                Enroll now and gain hands-on experience with real-world DevOps tools. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")}

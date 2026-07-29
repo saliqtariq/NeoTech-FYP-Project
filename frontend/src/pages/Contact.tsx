@@ -36,15 +36,23 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Mocking submission for presentation
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit');
+      }
 
       toast({
         title: "Message Sent Successfully!",
         description: "Our team will contact you within 24 hours.",
       });
       setFormData({ firstName: "", lastName: "", email: "", phone: "", message: "" });
-      setTimeout(() => navigate("/Thank-you"), 1500);
+      setTimeout(() => navigate("/contact-thank-you"), 1500);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -68,7 +76,7 @@ const Contact = () => {
     "logo": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/graduation-cap.svg",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "123 Tech Avenue, Software Park, Sector 5, Lahore, Pakistan",
+      "streetAddress": "Lahore, Pakistan",
       "addressLocality": "Lahore",
       "addressRegion": "Punjab",
       "postalCode": "00000",
@@ -141,7 +149,7 @@ const Contact = () => {
               <div>
                 <h4 className="font-bold text-slate-900 mb-1">Headquarters</h4>
                 <p className="text-slate-600 font-medium text-sm leading-relaxed">
-                  123 Tech Avenue, Software Park, Sector 5, Lahore, Pakistan
+                  Lahore, Pakistan
                 </p>
               </div>
             </div>
@@ -191,16 +199,16 @@ const Contact = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">First Name</label>
-                    <Input name="firstName" value={formData.firstName} onChange={handleInputChange} required placeholder="John" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
+                    <Input name="firstName" value={formData.firstName} onChange={handleInputChange} required placeholder="Saliq" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Last Name</label>
-                    <Input name="lastName" value={formData.lastName} onChange={handleInputChange} required placeholder="Doe" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
+                    <Input name="lastName" value={formData.lastName} onChange={handleInputChange} required placeholder="Tariq" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Email Address</label>
-                  <Input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="john@example.com" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
+                  <Input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="saliq@example.com" className="rounded-xl bg-slate-50 border-slate-200 h-14" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Phone Number</label>

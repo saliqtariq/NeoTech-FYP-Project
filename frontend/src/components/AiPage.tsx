@@ -265,12 +265,9 @@ export default function AiPage() {
                 Ready to Launch Your Career in AI & Machine Learning?
               </h2>
               <p className="text-lg mb-8">
-                Enroll today for only {(() => {
-                  const courseObj = findCourse(coursePricingKey);
-                  return courseObj ? formatPrice(courseObj) : "...";
-                })()} and gain the skills needed to design intelligent systems,
+                Enroll today and gain the skills needed to design intelligent systems,
                 build predictive models, and step confidently into one of the most
-                future-proof careers in tech.
+                future-proof careers in tech. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")}

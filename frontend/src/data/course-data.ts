@@ -1,7 +1,7 @@
 export const courseOutlines = {
   "mern-stack": {
     title: "MERN Full Stack Development",
-    duration: "6 Months",
+    duration: "3 Months",
     totalModules: 8,
     modules: [
       {

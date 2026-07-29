@@ -254,12 +254,9 @@ export default function CyberSecurityPage() {
                 Ready to Start Your Cyber Security Career?
               </h2>
               <p className="text-lg mb-8">
-                Enroll today for only {(() => {
-                  const courseObj = findCourse(coursePricingKey);
-                  return courseObj ? formatPrice(courseObj) : "...";
-                })()} and gain the skills needed to protect organizations,
+                Enroll today and gain the skills needed to protect organizations,
                 secure digital systems, and step confidently into one of the most
-                in-demand careers in tech.
+                in-demand careers in tech. Start learning today!
               </p>
               <Button
                 onClick={() => navigate("/enrollnow")}

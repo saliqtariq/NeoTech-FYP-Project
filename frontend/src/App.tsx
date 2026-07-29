@@ -64,6 +64,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import BlogPage from "./pages/Blog";
 import BlogPostPage from "./pages/BlogDetails";
 import WhyNeotechSolution from "./pages/WhyNeotechSolution";
+import ContactThankYou from "./pages/ContactThankYou";
 
 import Sitemap from "./pages/Sitemap";
 import Portfolio from "./pages/Portfolio";
@@ -129,6 +130,7 @@ const App = () => (
                 <Route path="/DigitalMarketing" element={<DigitalMarketingServicesPage />} />
                 <Route path="/SocialMediaMarketing" element={<SocialMediaMarketingServicesPage />} />
                 <Route path="/Thank-you" element={<ThankYou />} />
+                <Route path="/contact-thank-you" element={<ContactThankYou />} />
                 <Route path="/demo-success" element={<DemoThankYou />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/payment-failed" element={<ThankYou />} />

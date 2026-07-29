@@ -61,7 +61,7 @@ const Footer = () => {
             </h2>
           </div>
           <div className="md:text-right">
-            <Button onClick={() => navigate('/FreeDemo')} className="bg-white text-gray-950 hover:bg-gray-200 hover:-translate-y-1 transition-all rounded-full px-8 py-6 text-lg font-bold shadow-xl shadow-white/10">
+            <Button onClick={() => window.open('https://wa.me/923358746804', '_blank')} className="bg-white text-gray-950 hover:bg-gray-200 hover:-translate-y-1 transition-all rounded-full px-8 py-6 text-lg font-bold shadow-xl shadow-white/10">
               Book a Free Consultation
             </Button>
           </div>
