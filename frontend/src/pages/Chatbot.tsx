@@ -3,7 +3,6 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Bot, X, Send } from "lucide-react"
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -12,8 +11,8 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
-  // Ensure your API key is set in your .env file as VITE_GEMINI_API_KEY
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
+  // Ensure your API key is set in your .env file as VITE_GROQ_API_KEY
+  const API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -29,37 +28,107 @@ const Chatbot = () => {
     const userMessage = { role: "user", text: input };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
+    const userQuery = input;
+    setInput("");
     setLoading(true);
 
-    try {
-      // Simple rule-based logic for presentation
-      setTimeout(() => {
-        const lowerInput = input.toLowerCase();
-        let botReply = "Thank you for reaching out! Our agents are currently busy, but you can explore our trending courses or contact us at info@neotechsolution.com for direct assistance.";
+    // 1. Try Live Groq AI Model
+    if (API_KEY) {
+      try {
+        const systemInstruction = `You are the friendly, persuasive AI Career Assistant for "Neotech Solutions" (a top Institute of Technology & Software House in Lahore, Pakistan).
+Your goal is to guide students, answer course inquiries with exact details, and enthusiastically encourage them to enroll!
 
-        if (lowerInput.includes("hi") || lowerInput.includes("hello") || lowerInput.includes("hey")) {
-          botReply = "Yes, what can I help you with today?";
-        } else if (lowerInput.includes("course") || lowerInput.includes("learn") || lowerInput.includes("enroll") || lowerInput.includes("outline")) {
-          botReply = "You can visit our Courses page to find detailed outlines, durations, and enrollment options for all our programs!";
+NEOTECH COURSES & DETAILS:
+1. MERN Full Stack Development: 4 Months | Rs. 5,997/mo | Covers MongoDB, Express, React, Node, TypeScript. Build 5+ real projects.
+2. Full Stack AI (ML + DL): 3 Months | Rs. 5,997/mo | Covers Python, PyTorch, Neural Networks, Model Deployment, LLMs.
+3. Cybersecurity & Ethical Hacking: 3 Months | Rs. 5,997/mo | Penetration testing labs, network security, defense.
+4. Data Analysis Professional: 3 Months | Rs. 1,999/mo | Python, SQL, PowerBI, Excel, Data Visualization.
+5. DevOps Engineering: 3 Months | Rs. 5,997/mo | Docker, Kubernetes, CI/CD, AWS Cloud, Terraform.
+6. UI / UX Design: 2 Months | Rs. 5,997/mo | Figma, Wireframing, User Research, Prototyping.
+7. Spoken English Mastery: 2 Months | Special Rates | Business Communication, Accent, Interview Prep.
+
+NEOTECH ADVANTAGES TO EMPHASIZE:
+- Verified Certificates recognized globally.
+- 98% Job Placement & hiring partner referrals.
+- 1-on-1 Mentorship from senior software engineers.
+- Flexible Monthly Installments available in Cart.
+
+RULES:
+- Be warm, helpful, professional, and persuasive.
+- Keep responses concise and easy to read (use emojis and bullet points).
+- Handle typos gracefully and answer any career question. Always motivate them to enroll!`;
+
+        const apiMessages = [
+          { role: "system", content: systemInstruction },
+          ...updatedMessages.map(m => ({
+            role: m.role === "bot" ? "assistant" : "user",
+            content: m.text
+          }))
+        ];
+
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: apiMessages,
+            temperature: 0.7,
+            max_tokens: 1024
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Groq API Error: ${response.status}`);
         }
 
-        setMessages((prev) => [
-          ...prev, 
-          { role: "bot", text: botReply }
-        ]);
+        const data = await response.json();
+        const botReply = data.choices[0].message.content;
+
+        setMessages((prev) => [...prev, { role: "bot", text: botReply }]);
         setLoading(false);
-        setInput("");
-      }, 1000);
-      
-    } catch (err) {
-      console.error("Chatbot Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "I am having trouble connecting. Please visit neotechsolution.com for direct assistance." }
-      ]);
-      setLoading(false);
-      setInput("");
+        return;
+      } catch (err) {
+        console.warn("Groq API call failed, using smart fallback engine:", err);
+      }
     }
+
+    // 2. Fallback Smart Rule Engine (works even if API key is not set or network drops)
+    setTimeout(() => {
+      const query = userQuery.toLowerCase();
+      let botReply = "";
+
+      if (query.match(/\b(hi|hello|hey|greetings|hola)\b/)) {
+        botReply = "👋 Hello! Welcome to **Neotech Solutions**, the premier Tech Institute & Software House! How can I assist you with your career goals today?";
+      } else if (query.includes("price") || query.includes("fee") || query.includes("cost") || query.includes("discount") || query.includes("installment")) {
+        botReply = "💰 **Affordable & Flexible Pricing at Neotech:**\n\n• **MERN Full Stack:** Rs. 5,997 / month\n• **Data Analysis Professional:** Rs. 1,999 / month\n• **Cybersecurity & Ethical Hacking:** Rs. 5,997 / month\n• **Full Stack AI (ML + DL):** Rs. 5,997 / month\n• **DevOps Engineering:** Rs. 5,997 / month\n• **UI/UX Design:** Rs. 5,997 / month\n• **Spoken English Mastery:** Promotional discounts available!\n\n✨ *We offer monthly installment options! Would you like help enrolling in any course?*";
+      } else if (query.includes("mern") || query.includes("react") || query.includes("node") || query.includes("mongo") || query.includes("web")) {
+        botReply = "🚀 **MERN Full Stack Development (4 Months):**\n\n**Summary:** Master MongoDB, Express.js, React, Node.js, and TypeScript.\n\n**Why Neotech?** Build 5+ real portfolio projects with 1-on-1 developer mentorship!";
+      } else if (query.includes("ai") || query.includes("machine") || query.includes("learning") || query.includes("ml")) {
+        botReply = "🤖 **Full Stack AI (ML + DL) (3 Months):**\n\n**Summary:** Learn Python, PyTorch, Neural Networks, and LLM integrations.\n\n**Why Neotech?** AI is the highest-paying tech field. Build real AI products with us!";
+      } else if (query.includes("cyber") || query.includes("hack") || query.includes("security")) {
+        botReply = "🛡️ **Cybersecurity & Ethical Hacking (3 Months):**\n\n**Summary:** Penetration Testing, Network Security, and Defense Labs.\n\n**Why Neotech?** Earn globally-recognized certificates and high-demand security skills!";
+      } else if (query.includes("data") || query.includes("analyst") || query.includes("python") || query.includes("sql")) {
+        botReply = "📊 **Data Analysis Professional (3 Months):**\n\n**Summary:** Learn Python, SQL, PowerBI, Excel, and Data Visualization.\n\n**Why Neotech?** High starting salaries & beginner-friendly curriculum!";
+      } else if (query.includes("devops") || query.includes("docker") || query.includes("cloud")) {
+        botReply = "⚡ **DevOps Engineering (3 Months):**\n\n**Summary:** Docker, Kubernetes, CI/CD, AWS Cloud, and Terraform.\n\n**Why Neotech?** Essential for high-scalability cloud architecture roles!";
+      } else if (query.includes("design") || query.includes("ui") || query.includes("ux") || query.includes("figma")) {
+        botReply = "🎨 **UI / UX Design (2 Months):**\n\n**Summary:** Figma, Wireframing, User Research, Prototyping, and Design Systems.\n\n**Why Neotech?** Build a world-class portfolio that impresses global clients!";
+      } else if (query.includes("english") || query.includes("spoken")) {
+        botReply = "🗣️ **Spoken English Mastery (2 Months):**\n\n**Summary:** Fluency, Accent Neutralization, and Business Interview Prep.\n\n**Why Neotech?** Master English to crack international remote jobs!";
+      } else if (query.includes("why") || query.includes("benefit") || query.includes("certif")) {
+        botReply = "🌟 **Why Neotech Solutions?**\n\n1. 📜 **Verified Certificates:** Recognized globally.\n2. 💼 **98% Job Placement Support:** Hiring partner referrals.\n3. 👨‍🏫 **Live Mentorship:** Direct senior developer guidance.\n4. 🚀 **Real Projects:** Portfolio-ready software!\n\nReady to get started? Head to **Online Courses** to add a course to your cart!";
+      } else if (query.includes("enroll") || query.includes("join") || query.includes("apply") || query.includes("buy")) {
+        botReply = "🎯 **How to Enroll:**\n\n1. Click **Online Courses** in the top menu.\n2. Click **Add to Cart** on your chosen course.\n3. Select **Full Fee** or **Monthly Installments**.\n4. Complete checkout to start learning!";
+      } else {
+        botReply = `At **Neotech Solutions**, we empower students with market-leading skills in MERN Stack, AI, Cybersecurity, Data Analysis, DevOps, UI/UX, and Spoken English.\n\nCould you clarify what you'd like to learn? I'd love to help you find the best path!`;
+      }
+
+      setMessages((prev) => [...prev, { role: "bot", text: botReply }]);
+      setLoading(false);
+    }, 600);
   };
 
   const chatbotZIndex = isOpen ? 999 : 40
