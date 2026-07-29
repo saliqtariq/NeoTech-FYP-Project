@@ -22,7 +22,7 @@ const PaymentSuccess: React.FC = () => {
     "The future belongs to those who learn."
   ], []);
 
-  // ✅ Auto-update payment status to Completed in both MongoDB AND Sanity when Stripe redirects back
+  // ✅ Save payment & enrollment record to MongoDB AND Sanity when Stripe redirects back
   useEffect(() => {
     const raw = sessionStorage.getItem('pendingPayment');
     if (!raw) return;
@@ -30,31 +30,55 @@ const PaymentSuccess: React.FC = () => {
     try {
       const payment = JSON.parse(raw);
 
-      // 1. Update MongoDB payment status
-      fetch(`${API_URL}/api/payments/status`, {
-        method: 'PATCH',
+      // 1. Create payment record in MongoDB
+      fetch(`${API_URL}/api/payments`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: payment.studentEmail,
+          transactionId: `txn_${Date.now()}`,
+          studentName: payment.studentName,
+          studentEmail: payment.studentEmail,
           courseName: payment.courseName,
+          amount: payment.amount,
+          currency: payment.currency,
+          paymentMethod: 'Stripe Card',
           status: 'Completed',
         }),
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log('✅ MongoDB payment updated to Completed:', data);
+          console.log('✅ MongoDB payment saved:', data);
         })
-        .catch((err) => console.error('Failed to update MongoDB payment:', err));
+        .catch((err) => console.error('Failed to save MongoDB payment:', err));
 
-      // 2. Auto-patch Sanity enrollment to Completed (so dashboard shows approved automatically)
-      if (payment.sanityEnrollmentId) {
-        writeClient
-          .patch(payment.sanityEnrollmentId)
-          .set({ status: 'Completed' })
-          .commit()
-          .then(() => console.log('✅ Sanity enrollment auto-approved!'))
-          .catch((err: any) => console.error('Failed to auto-approve Sanity:', err));
-      }
+      // 2. Also create enrollment in MongoDB
+      fetch(`${API_URL}/api/enrollments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: payment.studentName,
+          email: payment.studentEmail,
+          phone: payment.studentPhone || '',
+          course: payment.courseName,
+          status: 'Completed',
+        }),
+      }).catch((err) => console.error('Failed to save MongoDB enrollment:', err));
+
+      // 3. Create Sanity enrollment document so it immediately shows in Sanity Admin Dashboard
+      writeClient
+        .create({
+          _type: 'enrollment',
+          name: payment.studentName,
+          fullName: payment.studentName,
+          email: payment.studentEmail,
+          phone: payment.studentPhone || '',
+          course: payment.courseName,
+          status: 'Completed',
+          amount: payment.amount ? `${payment.amount}` : 'Paid',
+          createdDate: new Date().toISOString(),
+        })
+        .then((doc: any) => console.log('✅ Sanity enrollment document created & auto-approved:', doc._id))
+        .catch((err: any) => console.error('Failed to create Sanity enrollment:', err));
 
       // Clean up sessionStorage
       sessionStorage.removeItem('pendingPayment');

@@ -4,7 +4,7 @@
 		"title": "MERN Full Stack Development",
 		"description": "Master MongoDB, Express.js, React, and Node.js to become a complete full-stack developer.",
 		"duration": "4 Months",
-		"thumbnail": "/fullstackdevelopercourse.png",
+		"thumbnail": "/mernstackCourse Pic.png",
 		"slug": "mern-full-stack-development"
 	},
 	{
@@ -12,7 +12,7 @@
 		"title": "Full Stack AI (ML + DL)",
 		"description": "Comprehensive AI course covering Machine Learning and Deep Learning fundamentals and projects.",
 		"duration": "3 Months",
-		"thumbnail": "/fullstackdevelopercourse.png",
+		"thumbnail": "/FullstackDevelopment.png",
 		"slug": "full-stack-ai-ml-dl"
 	},
 	{
@@ -20,7 +20,7 @@
 		"title": "Cybersecurity & Ethical Hacking",
 		"description": "Master cybersecurity fundamentals, ethical hacking, and hands-on penetration testing labs.",
 		"duration": "3 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/CyberSecurity.png",
 		"slug": "cybersecurity-ethical-hacking"
 	},
 	{
@@ -28,7 +28,7 @@
 		"title": "Data Analysis Professional",
 		"description": "Learn Python, SQL, and data visualization tools to become a data analysis professional.",
 		"duration": "3 Months",
-		"thumbnail": "/dataprofessionalcourse.png",
+		"thumbnail": "/DataAnalyst.png",
 		"slug": "data-analyst-professional"
 	},
 	{
@@ -36,7 +36,7 @@
 		"title": "DevOps Engineering",
 		"description": "CI/CD, containerization, infrastructure as code and cloud-native deployment practices.",
 		"duration": "3 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/DevOpsEngineering.png",
 		"slug": "devops-engineering"
 	},
 	{
@@ -44,7 +44,7 @@
 		"title": "UI / UX Design",
 		"description": "Human-centered design, prototyping, and product UX best practices for modern apps.",
 		"duration": "2 Months",
-		"thumbnail": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
+		"thumbnail": "/Ui-UxDesign.png",
 		"slug": "ui-ux-design"
 	},
 	{
@@ -52,7 +52,7 @@
 		"title": "Spoken English Mastery",
 		"description": "Improve your spoken English for professional communication and interviews.",
 		"duration": "2 Months",
-		"thumbnail": "/englishspokenmasteryupdatedpic.png",
+		"thumbnail": "/SpokenEnglishMastery.png",
 		"slug": "spoken-english-mastery"
 	}
 ]

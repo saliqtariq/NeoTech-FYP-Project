@@ -102,39 +102,54 @@ const Cart = () => {
         const { billing } = getCalculatedPrices(fullCartItems);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 800));
+            toast({
+                title: "Redirecting to Payment...",
+                description: "Please wait while we connect you to the secure payment gateway.",
+            });
 
-            const data = {
-                success: true,
-                params: { status: "mocked" },
-                formAction: "/thank-you?payment=success"
-            };
+            // Build a combined course name for Stripe
+            const courseNames = fullCartItems.map(item => item.name).join(', ');
 
-            if (data.success && data.params) {
-                // Perform Redirection via Form Submission
-                // NOTE: Cart is NOT cleared here — it clears only on the ThankYou page
-                // after PayFast confirms successful payment via SUCCESS_URL query parameter.
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = data.formAction;
+            // Call backend to create a Stripe Checkout Session
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${API_URL}/api/payments/create-checkout-session`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    courseName: courseNames,
+                    price: billing.amount,
+                    courseId: fullCartItems.map(item => item.id).join(','),
+                    currency: billing.currency.toLowerCase(),
+                    studentName: userName,
+                    studentEmail: userEmail,
+                }),
+            });
 
-                Object.keys(data.params).forEach((key) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = data.params[key];
-                    form.appendChild(input);
-                });
+            const data = await response.json();
 
-                document.body.appendChild(form);
-                form.submit();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create checkout session');
+            }
 
-                toast({
-                    title: "Redirecting...",
-                    description: "Please wait while we redirect you to the secure payment gateway.",
-                });
+            // Store checkout details so PaymentSuccess page can record it
+            sessionStorage.setItem('pendingPayment', JSON.stringify({
+                studentName: userName,
+                studentEmail: userEmail,
+                studentPhone: userPhone,
+                courseName: courseNames,
+                amount: billing.amount,
+                currency: billing.currency,
+                items: fullCartItems.map(item => ({ name: item.name, paymentPlan: item.paymentPlan })),
+            }));
+
+            // Clear the cart before redirecting to Stripe
+            clearCart();
+
+            // Redirect to Stripe's hosted checkout page
+            if (data.url) {
+                window.location.href = data.url;
             } else {
-                throw new Error("Invalid response from payment gateway");
+                throw new Error('No checkout URL received from payment gateway');
             }
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -95,3 +95,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Server error during login' });
   }
 };
+
+// @desc    Get all registered users
+// @route   GET /api/auth/users
+// @access  Public (should be protected in prod)
+export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    console.error('Fetch Users Error:', error);
+    res.status(500).json({ message: 'Server error fetching users' });
+  }
+};

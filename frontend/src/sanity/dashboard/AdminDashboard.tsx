@@ -131,17 +131,34 @@ export default function AdminDashboard() {
   const { certificates } = useCertificates()
 
   const [enrollments, setEnrollments] = useState<any[]>([])
+  const [siteUsers, setSiteUsers] = useState<any[]>([])
 
   useEffect(() => {
     ;(async () => {
       try {
-        const [courses, certs, initialEnrollments] = await Promise.all([
+        const [courses, certs, initialEnrollments, mongoEnrollments, usersRes] = await Promise.all([
           sanityClient.fetch(`count(*[_type == "course"])`),
           sanityClient.fetch(`count(*[_type == "certificate"])`),
-          sanityClient.fetch(`*[_type == "enrollment"] | order(_createdAt desc)`)
+          sanityClient.fetch(`*[_type == "enrollment"] | order(_createdAt desc)`),
+          fetch(`${API_URL}/api/enrollments`).then(r => r.json()).catch(() => []),
+          fetch(`${API_URL}/api/auth/users`).then(r => r.json()).catch(() => [])
         ])
         setStats({ courses, certificates: certs })
-        setEnrollments(initialEnrollments)
+
+        // Format and merge enrollments from both sources
+        const formattedMongo = (Array.isArray(mongoEnrollments) ? mongoEnrollments : []).map((m: any) => ({
+          _id: m._id,
+          name: m.name || m.fullName || m.studentName || m.email?.split('@')[0],
+          email: m.email || m.studentEmail,
+          phone: m.phone || m.studentPhone || '',
+          course: m.course || m.courseName,
+          status: m.status || 'Completed',
+          _createdAt: m.createdAt || new Date().toISOString()
+        }))
+
+        const combined = [...initialEnrollments, ...formattedMongo]
+        setEnrollments(combined)
+        setSiteUsers(usersRes.length ? usersRes : [])
       } catch (e) { console.error(e) }
     })()
 
@@ -191,16 +208,21 @@ export default function AdminDashboard() {
 
   const uniqueStudentsMap = new Map()
   enrollments.forEach(e => {
+    const studentName = e.name || e.fullName || e.studentName || (e.email ? e.email.split('@')[0] : 'Student')
     if (!uniqueStudentsMap.has(e.email)) {
       uniqueStudentsMap.set(e.email, {
-        name: e.name,
+        name: studentName,
         email: e.email,
-        phone: e.phone,
+        phone: e.phone || '',
         courses: 1,
-        joined: new Date(e._createdAt).toLocaleDateString()
+        joined: new Date(e._createdAt || Date.now()).toLocaleDateString()
       })
     } else {
-      uniqueStudentsMap.get(e.email).courses += 1
+      const existing = uniqueStudentsMap.get(e.email)
+      existing.courses += 1
+      if ((!existing.name || existing.name === e.email.split('@')[0]) && studentName !== e.email.split('@')[0]) {
+        existing.name = studentName
+      }
     }
   })
   const uniqueStudents = Array.from(uniqueStudentsMap.values())
@@ -233,6 +255,7 @@ export default function AdminDashboard() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           <SideLink icon={LayoutDashboard} label="Dashboard" active={activeTab === 'Dashboard'} onClick={() => setActiveTab('Dashboard')} />
+          <SideLink icon={Users}            label="Users" active={activeTab === 'Users'} onClick={() => setActiveTab('Users')} />
           <SideLink icon={BookOpen}         label="Courses" active={activeTab === 'Courses'} onClick={() => setActiveTab('Courses')} />
           <SideLink icon={Award}            label="Certificates" active={activeTab === 'Certificates'} onClick={() => setActiveTab('Certificates')} />
           <SideLink icon={Users}            label="Students" active={activeTab === 'Students'} onClick={() => setActiveTab('Students')} />
@@ -302,9 +325,9 @@ export default function AdminDashboard() {
             <StatCard 
               icon={Users}         
               iconBg={green}  
-              label="Total Students"      
-              value={uniqueStudents.length}
-              change="Active registered students" 
+              label="Registered Users"      
+              value={siteUsers.length}
+              change="Active accounts" 
             />
             <StatCard 
               icon={Award} 
@@ -427,6 +450,38 @@ export default function AdminDashboard() {
                 {certificates.length === 0 && (
                    <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', gridColumn: '1 / -1', background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0' }}>No certificates found.</div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'Users' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div>
+                <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: 0 }}>Registered Users</h1>
+                <p style={{ color: '#64748b', fontSize: 15, margin: '4px 0 0' }}>View all users who have signed up on the platform.</p>
+              </div>
+              <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Name</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Email</th>
+                      <th style={{ padding: '16px 24px', fontSize: 13, fontWeight: 600, color: '#64748b' }}>Joined Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {siteUsers.map((u: any, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '16px 24px', fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{u.name}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#475569', fontWeight: 500 }}>{u.email}</td>
+                        <td style={{ padding: '16px 24px', fontSize: 14, color: '#94a3b8' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                    {siteUsers.length === 0 && (
+                      <tr><td colSpan={3} style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>No users found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

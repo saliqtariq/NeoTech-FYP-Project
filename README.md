@@ -1,43 +1,104 @@
-# Neotech - Premier Institute of Technology & Software Company
+# NeoTech Solutions — Final Year Project (FYP)
 
-Neotech is a leading Institute of Technology and Software Company, dedicated to empowering individuals with cutting-edge technology skills and providing innovative software solutions that drive growth and success in the digital age.
+NeoTech Solutions is a comprehensive web application for an IT Education Institute and Software House. It handles course cataloging, online enrollments, cart management, Stripe payments, and student administration.
 
-## 🚀 Vision
+# 🌟 Key Features
 
-To be a global leader in technology education and software innovation, bridging the gap between learning and industry excellence.
+**Course Catalog & Interactive Curriculums:**
+ Browse IT courses, search by category, and view detailed module outlines.
+ **Online Cart & Flexible Payment Plans:** Add multiple courses to cart with options for Full Fee or Installments.
+**Stripe Checkout Integration:** Card payment gateway flow that updates status across MongoDB and Sanity CMS.
+**Admin Dashboard & CMS Studio:** Embedded Sanity CMS (`/admin`) and custom metrics dashboard (`/admin/dashboard`) tracking enrollments and students.
+**Software House Portfolio:** Service showcases for Web Development, AI, Cybersecurity, DevOps, and UI/UX Design.
 
-## 🎓 Featured Courses
+# 🛠️ Technology Stack
 
-- **MERN Full Stack Development**: Master MongoDB, Express.js, React, and Node.js.
-- **AI & Machine Learning**: Deep dive into intelligent systems and data models.
-- **Data Analysis**: Turn raw data into actionable business intelligence.
-- **Cyber Security & Ethical Hacking**: Protect digital assets and master defensive strategies.
-- **UI/UX Design**: Create intuitive and engaging digital experiences.
-- **DevOps Engineering**: Streamline deployments and manage cloud infrastructure.
+Frontend:
+* React 18 (TypeScript) + Vite
+* Tailwind CSS & ShadCN UI
+* Sanity Studio v3
+* TanStack Query & React Router v6
 
-## 💻 Software Services
+Backend:
+* Node.js & Express.js (TypeScript)
+* MongoDB with Mongoose ODM
+* Stripe API Payment Gateway
 
-- **Web Development**: Custom, high-performance web applications.
-- **Mobile App Development**: Native and cross-platform mobile solutions.
-- **Cloud Solutions**: Scalable and secure cloud architecture.
-- **AI Integration**: Implementing smart features into your existing systems.
+## System Architecture & Data Flow
 
-## 🛠️ Tech Stack
+1. User Interaction: Students browse courses and add them to the React frontend cart.
+2. Payment Processing: Cart checkout invokes Express backend (`/api/payments/create-checkout-session`) to generate a Stripe Checkout session.
+3. Automated Sync: Upon successful payment redirect (`/payment-success`), record documents are generated in both local **MongoDB and **Sanity CMS**.
+4. Admin Dashboard: Admin panel listens in real-time to Sanity & MongoDB collections to present real-time student analytics.
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Shadcn UI, Framer Motion.
-- **Routing**: React Router DOM.
-- **State Management**: Zustand / Context API.
-- **Data Fetching**: TanStack Query (React Query).
-- **Icons**: Lucide React, React Icons.
-- **Analytics & SEO**: Facebook Pixel, React Helmet Async.
+## API Endpoints:
 
-## 🌐 Contact Us
+Payments (`/api/payments`)
+- `POST /api/payments/create-checkout-session` — Generate Stripe Hosted Checkout Session
+- `POST /api/payments` — Record completed transaction in MongoDB
+- `GET /api/payments` — Fetch all transaction records
+- `PATCH /api/payments/status` — Update payment & enrollment status
 
-- **Website**: [www.neotechsolution.com](https://www.neotechsolution.com)
-- **Phone**: +92 300 0000000 / +92 300 0000001
-- **Email**: contact@neotechsolution.com
-- **Address**: 123 Tech Avenue, Software Park, Sector 5, Lahore, Pakistan
+Enrollments (`/api/enrollments`)**
+- `POST /api/enrollments` — Save student course enrollment
+- `GET /api/enrollments` — List all student enrollments
 
----
+Authentication (`/api/auth`)**
+- `POST /api/auth/register` — Register new user
+- `POST /api/auth/login` — User authentication & JWT issuance
+- `GET /api/auth/users` — Fetch registered platform users
 
-© 2026 Neotech. All rights reserved.
+
+
+# 📁 Folder Structure
+
+neotech/
+├── frontend/
+│   ├── public/              (Course images, icons, static assets)
+│   ├── src/
+│   │   ├── components/      (UI components & page sections)
+│   │   ├── pages/           (Course, Cart, LMS, About, & Dashboard pages)
+│   │   ├── sanity/          (CMS schemas & Admin Dashboard)
+│   │   └── App.tsx          (Route definitions)
+│   └── package.json
+│
+└── backend/
+    ├── src/
+    │   ├── controllers/     (Auth, Enrollment, Payment handlers)
+    │   ├── models/          (MongoDB schemas)
+    │   ├── routes/          # Express API endpoints
+    │   └── server.ts        # Express App entry point
+    └── package.json
+
+Quick Start Guide
+
+1. Backend Setup
+   * Navigate to backend directory: `cd backend`
+   * Install packages: `npm install`
+   * Start dev server: `npm run dev` (Runs on http://localhost:5000)
+
+2. Frontend Setup
+   * Open a new terminal and navigate to frontend directory: `cd frontend`
+   * Install packages: `npm install`
+   * Start dev server: `npm run dev` (Runs on http://localhost:8080)
+
+⚙️ Environment Configuration
+
+Backend (.env):
+env
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/neotech
+JWT_SECRET=your_jwt_secret_key
+STRIPE_SECRET_KEY=sk_test_...
+FRONTEND_URL=http://localhost:8080
+```
+
+Frontend (.env):
+env
+VITE_API_URL=http://localhost:5000
+VITE_SANITY_PROJECT_ID=d9m1wvck
+VITE_SANITY_DATASET=production
+VITE_SANITY_TOKEN=your_sanity_token
+
+
+© 2026 NeoTech Solutions (Pvt. Ltd.). All rights reserved.
