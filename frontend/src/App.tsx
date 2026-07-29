@@ -74,6 +74,31 @@ import SpokenEnglishPage from "@/components/SpokenEnglishPage";
 import { CartProvider } from "./context/CartContext";
 import Layout from "./components/Layout";
 
+import { useEffect } from "react";
+import axios from "axios";
+import { useUser } from "@clerk/clerk-react";
+
+const ClerkSync = () => {
+  const clerk = isClerkEnabled ? useUser() : { isSignedIn: false, user: null };
+  const { isSignedIn, user } = clerk;
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const email = user.primaryEmailAddress?.emailAddress;
+      const name = user.fullName || user.firstName || email?.split('@')[0];
+      
+      if (email) {
+        // We do a fire-and-forget sync call so the user is immediately saved to Mongo
+        axios.post(`${API_URL}/api/auth/sync`, { name, email })
+          .catch(err => console.error('Failed to sync Clerk user', err));
+      }
+    }
+  }, [isSignedIn, user]);
+
+  return null;
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -86,6 +111,7 @@ const App = () => (
           {/* <DevToolsBlocker /> */}
           <BrowserRouter>
             <ScrollToTop />
+            <ClerkSync />
             <Routes>
               {/* Auth Routes */}
               <Route path="/sign-in/*" element={isClerkEnabled ? <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4"><SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" /></div> : <CustomSignIn />} />

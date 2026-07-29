@@ -30,31 +30,47 @@ const PaymentSuccess: React.FC = () => {
     try {
       const payment = JSON.parse(raw);
 
-      // 1. Update existing payment & enrollment in MongoDB to 'Completed'
-      fetch(`${API_URL}/api/payments/status`, {
-        method: 'PATCH',
+      // 1. Create Sanity enrollment document with 'Completed' status
+      writeClient.create({
+        _type: 'enrollment',
+        name: payment.studentName,
+        email: payment.studentEmail,
+        phone: payment.phone || 'N/A',
+        course: payment.courseName,
+        paymentFrequency: payment.paymentFrequency || 'full',
+        status: 'Completed'
+      }).then((doc: any) => console.log('✅ Sanity enrollment document created:', doc._id))
+        .catch((err: any) => console.error('Failed to create Sanity enrollment:', err));
+
+      // 2. Create MongoDB enrollment record
+      fetch(`${API_URL}/api/enrollments`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: payment.studentName,
           email: payment.studentEmail,
-          courseName: payment.courseName,
-          status: 'Completed',
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log('✅ MongoDB payment & enrollment updated to Completed:', data);
+          phone: payment.phone || 'N/A',
+          course: payment.courseName,
+          paymentFrequency: payment.paymentFrequency || 'full',
+          status: 'Completed'
         })
-        .catch((err) => console.error('Failed to update MongoDB payment status:', err));
+      }).catch(err => console.error('Failed to save enrollment to MongoDB:', err));
 
-      // 2. Update existing Sanity enrollment document to 'Completed' (auto-approve)
-      if (payment.sanityEnrollmentId) {
-        writeClient
-          .patch(payment.sanityEnrollmentId)
-          .set({ status: 'Completed' })
-          .commit()
-          .then((doc: any) => console.log('✅ Sanity enrollment document auto-approved:', doc._id))
-          .catch((err: any) => console.error('Failed to update Sanity enrollment:', err));
-      }
+      // 3. Create MongoDB payment record
+      fetch(`${API_URL}/api/payments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transactionId: `txn_${Date.now()}`,
+          studentName: payment.studentName,
+          studentEmail: payment.studentEmail,
+          courseName: payment.courseName,
+          amount: payment.amount,
+          currency: (payment.currency || 'usd').toUpperCase(),
+          paymentMethod: payment.paymentMethod || 'Full Payment',
+          status: 'Completed'
+        })
+      }).catch(err => console.error('Failed to save payment to MongoDB:', err));
 
       // Clean up sessionStorage
       sessionStorage.removeItem('pendingPayment');

@@ -108,3 +108,30 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: 'Server error fetching users' });
   }
 };
+
+// @desc    Sync user from Clerk to MongoDB
+// @route   POST /api/auth/sync
+// @access  Public
+export const syncUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email } = req.body;
+    if (!email) {
+      res.status(400).json({ message: 'Email is required for syncing' });
+      return;
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        password: await bcrypt.hash(Math.random().toString(36), 10), // dummy password
+      });
+    }
+
+    res.status(200).json({ message: 'User synced successfully', user });
+  } catch (error) {
+    console.error('Sync User Error:', error);
+    res.status(500).json({ message: 'Server error during user sync' });
+  }
+};

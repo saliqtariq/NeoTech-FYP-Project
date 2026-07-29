@@ -208,67 +208,17 @@ const EnrollPakistan = () => {
       const studentName = formData.firstName + (formData.lastName ? ' ' + formData.lastName : '');
       const studentPhone = `${countryCode} ${formData.phone}`;
 
-      const sanityDoc = await writeClient.create({
-        _type: 'enrollment',
-        name: studentName,
-        email: formData.email,
-        phone: studentPhone,
-        course: selectedCourse,
-        paymentFrequency: paymentFrequency,
-        status: 'Pending Payment'
-      });
-      const sanityEnrollmentId = sanityDoc._id;
 
-      // Submit to MongoDB enrollments
-      try {
-        const enrollRes = await fetch(`${API_URL}/api/enrollments`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: studentName,
-            email: formData.email,
-            phone: studentPhone,
-            course: selectedCourse,
-            paymentFrequency: paymentFrequency,
-            status: 'Pending Payment'
-          })
-        });
-        if (!enrollRes.ok) console.error("Enrollment save returned:", enrollRes.status);
-      } catch (err) {
-        console.error('Failed to sync enrollment to MongoDB:', err);
-      }
-
-      // Submit payment record to MongoDB immediately (status: Pending Payment)
-      try {
-        const payRes = await fetch(`${API_URL}/api/payments`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            transactionId: `txn_${Date.now()}`,
-            studentName,
-            studentEmail: formData.email,
-            courseName: selectedCourse,
-            amount,
-            currency: currencyCode.toUpperCase(),
-            paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
-            status: 'Pending Payment'
-          })
-        });
-        if (!payRes.ok) console.error("Payment save returned:", payRes.status);
-      } catch (err) {
-        console.error('Failed to save payment to MongoDB:', err);
-      }
-
-      // Save student info in sessionStorage so PaymentSuccess can update status to Completed
+      // Save student info in sessionStorage so PaymentSuccess can create records with status Completed
       sessionStorage.setItem('pendingPayment', JSON.stringify({
         studentName,
         studentEmail: formData.email,
         courseName: selectedCourse,
+        paymentFrequency,
         paymentMethod: paymentFrequency === 'full' ? 'Full Payment' : 'Installment',
         amount,
         currency: currencyCode,
-        phone: studentPhone,
-        sanityEnrollmentId   // ✅ Needed to auto-approve in Sanity dashboard
+        phone: studentPhone
       }));
 
       // Call our new Node.js backend to create a Stripe checkout session

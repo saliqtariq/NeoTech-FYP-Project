@@ -135,10 +135,12 @@ const Cart = () => {
             sessionStorage.setItem('pendingPayment', JSON.stringify({
                 studentName: userName,
                 studentEmail: userEmail,
-                studentPhone: userPhone,
+                phone: userPhone,
                 courseName: courseNames,
                 amount: billing.amount,
                 currency: billing.currency,
+                paymentFrequency: fullCartItems.length === 1 ? (fullCartItems[0].paymentPlan === 'pay_full' ? 'full' : 'monthly') : 'full',
+                paymentMethod: fullCartItems.length === 1 && fullCartItems[0].paymentPlan === 'pay_monthly' ? 'Installment' : 'Full Payment',
                 items: fullCartItems.map(item => ({ name: item.name, paymentPlan: item.paymentPlan })),
             }));
 

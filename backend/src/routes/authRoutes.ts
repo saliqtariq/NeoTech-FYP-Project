@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signup, login, getAllUsers } from '../controllers/authController';
+import { signup, login, getAllUsers, syncUser } from '../controllers/authController';
 
 const router = Router();
 
@@ -11,5 +11,8 @@ router.post('/login', login);
 
 // Route: GET /api/auth/users
 router.get('/users', getAllUsers);
+
+// Route: POST /api/auth/sync
+router.post('/sync', syncUser);
 
 export default router;
